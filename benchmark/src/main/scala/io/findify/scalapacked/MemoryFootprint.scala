@@ -27,5 +27,8 @@ object MemoryFootprint {
     println(s"packed seq = ${meter.measureDeep(listPackedInts)}")
     println(s"list of I+S wrapped in case class = ${meter.measureDeep(listIS)}")
     println(s"packed I+S seq = ${meter.measureDeep(listPackedIS)}")
+
+    println(s"sizeof case IS = ${meter.measureDeep(WrappedIS(1, "foo"))}")
+    println(s"sizeof packed IS = ${meter.measureDeep(PackedIS(1, "foo"))}")
   }
 }
