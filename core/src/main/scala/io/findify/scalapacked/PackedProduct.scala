@@ -15,6 +15,6 @@ trait PackedProduct {
 
 object PackedMember {
   def memberSize[T](value: T)(implicit packer: PackedType[T]): Int = packer.size(value)
-  def memberWrite[T](value: T, buffer: ByteBuffer, offset: Int)(implicit packer: PackedType[T]): Unit = packer.write(value, buffer, offset)
+  def memberWrite[T](value: T, buffer: ByteBuffer)(implicit packer: PackedType[T]): Unit = packer.write(value, buffer)
   def memberRead[T](buffer: ByteBuffer, offset: Int)(implicit packer: PackedType[T]):T = packer.read(buffer, offset)
 }

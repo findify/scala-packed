@@ -7,7 +7,7 @@ import java.nio.ByteBuffer
   */
 trait PackedType[@specialized(Int, Long, Float, Double) T] {
   def size(value: T): Int
-  def write(value: T, buffer: ByteBuffer, offset: Int): Unit
+  def write(value: T, buffer: ByteBuffer): Unit
   def read(buffer: ByteBuffer, offset: Int): T
 }
 

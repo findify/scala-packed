@@ -9,20 +9,24 @@ import scala.reflect.ClassTag
   */
 class PackedSeq[T <: PackedProduct : ClassTag](buffer: ByteBuffer, size: Int) {
   import scala.reflect._
+  def byteSize: Int = {
+    var bytes = 0
+    foreach(item => bytes += item.size)
+    bytes
+  }
   def map[U <: PackedProduct : ClassTag]( f: T => U ) = {
     var offset = 0
     var count = 0
     val instanceT = classTag[T].runtimeClass.newInstance().asInstanceOf[T]
-    var instanceU = classTag[U].runtimeClass.newInstance().asInstanceOf[U]
     var output = ByteBuffer.allocate(1024)
     while (count < size) {
       instanceT.buffer = buffer
       instanceT.offset = offset
       offset += instanceT.size
-      instanceU = f(instanceT)
+      val instanceU = f(instanceT)
       count += 1
       if (output.remaining() > instanceU.size) {
-        output.put(instanceU.buffer)
+        output.put(instanceU.buffer.array(), 0, instanceU.buffer.capacity())
       } else {
         val largerOutput = ByteBuffer.allocate(output.capacity() * 2)
         largerOutput.put(output)
@@ -50,16 +54,17 @@ class PackedSeq[T <: PackedProduct : ClassTag](buffer: ByteBuffer, size: Int) {
 object PackedSeq {
   def apply[T <: PackedProduct : ClassTag](items: Seq[T]) = {
     val initial = ByteBuffer.allocate(1024)
-    val buffer = items.foldLeft(initial)( (buffer, item) => {
+    val outBuffer = items.foldLeft(initial)( (buffer, item) => {
       if (buffer.remaining() > item.size) {
-        buffer.put(item.buffer)
+        buffer.put(item.buffer.array(), 0, item.buffer.capacity())
         buffer
       } else {
         val largerBuffer = ByteBuffer.allocate(buffer.capacity() * 2)
-        largerBuffer.put(buffer)
-        largerBuffer.put(item.buffer)
+        largerBuffer.put(buffer.array(), 0, buffer.capacity())
+        largerBuffer.put(item.buffer.array(), 0, item.buffer.capacity())
+        largerBuffer
       }
     })
-    new PackedSeq[T](buffer, items.length)
+    new PackedSeq[T](outBuffer, items.length)
   }
 }

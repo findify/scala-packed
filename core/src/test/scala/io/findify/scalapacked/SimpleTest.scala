@@ -24,9 +24,9 @@ object Foo {
     val i2size = PackedMember.memberSize(i2)
     val buffer = ByteBuffer.allocate(i1size + i2size)
     val i1offset = 0
-    PackedMember.memberWrite(i1, buffer, i1offset)
+    PackedMember.memberWrite(i1, buffer)
     val i2offset = i1offset + i1size
-    PackedMember.memberWrite(i2, buffer, i2offset)
+    PackedMember.memberWrite(i2, buffer)
     new Foo(buffer, 0)
   }
 }
