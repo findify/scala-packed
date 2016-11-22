@@ -2,6 +2,7 @@ package io.findify.scalapacked
 
 import java.nio.ByteBuffer
 
+import io.findify.scalapacked.types.{IntPacked, LongPacked}
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -11,22 +12,16 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class Foo(var buffer: ByteBuffer, var offset: Int) extends PackedProduct {
   def this() = this(ByteBuffer.allocate(0), 0)
-  import io.findify.scalapacked.types.DefaultTypes._
-  def i1: Int = PackedMember.memberRead[Int](buffer, offset + 0)
-  def i2: Long = PackedMember.memberRead[Long](buffer, offset + PackedMember.memberSize(i1))
-  def size = PackedMember.memberSize(i1) + PackedMember.memberSize(i2)
+  def i1: Int = IntPacked.read(buffer, offset + 0)
+  def i2: Long = LongPacked.read(buffer, offset + IntPacked.size(i1))
+  def size = IntPacked.size(i1) + LongPacked.size(i2)
 }
 
 object Foo {
   def apply(i1: Int, i2: Long) = {
-    import io.findify.scalapacked.types.DefaultTypes._
-    val i1size = PackedMember.memberSize(i1)
-    val i2size = PackedMember.memberSize(i2)
-    val buffer = ByteBuffer.allocate(i1size + i2size)
-    val i1offset = 0
-    PackedMember.memberWrite(i1, buffer)
-    val i2offset = i1offset + i1size
-    PackedMember.memberWrite(i2, buffer)
+    val buffer = ByteBuffer.allocate(IntPacked.size(i1) + LongPacked.size(i2))
+    IntPacked.write(i1, buffer)
+    LongPacked.write(i2, buffer)
     new Foo(buffer, 0)
   }
 }
@@ -35,7 +30,7 @@ class SimpleTest extends FlatSpec with Matchers {
   "case class with int" should "be written to bytebuffer" in {
     val in = Foo(17, 24)
     val buff = ByteBuffer.allocate(in.size)
-    buff.put(in.buffer)
+    buff.put(in.buffer.array(), 0, in.buffer.capacity())
     val result1 = buff.getInt(0)
     result1 shouldBe 17
     val result2 = buff.getLong(4)
