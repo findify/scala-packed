@@ -59,7 +59,7 @@ object PackedSeq {
         buffer.put(item.buffer.array(), 0, item.buffer.capacity())
         buffer
       } else {
-        val largerBuffer = ByteBuffer.allocate(buffer.capacity() * 2)
+        val largerBuffer = ByteBuffer.allocate(Math.round(buffer.capacity() * 1.5f))
         largerBuffer.put(buffer.array(), 0, buffer.capacity())
         largerBuffer.put(item.buffer.array(), 0, item.buffer.capacity())
         largerBuffer
