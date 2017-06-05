@@ -15,8 +15,8 @@ lazy val macros = (project in file("macros")).settings(
   name := "scala-packed-macro",
   metaMacroSettings,
   libraryDependencies ++= Seq(
-    "org.scalameta" %% "scalameta" % "1.7.0",
-    "org.scalatest" %% "scalatest" % "3.0.1",
+    "org.scalameta" %% "scalameta" % "1.8.0",
+    "org.scalatest" %% "scalatest" % "3.0.3",
     "com.chuusai" %% "shapeless" % "2.3.2",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
     "ch.qos.logback" % "logback-classic" % "1.2.3"
