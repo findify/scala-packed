@@ -7,7 +7,7 @@ import org.scalatest.{FlatSpec, Matchers}
   */
 
 
-@Packed class One(a:Int, b:Long, s:String)
+/*@Packed class One(a:Int, b:Long, s:String)
 @Packed class Two(a:Int)
 
 class PackedSeqTest extends FlatSpec with Matchers {
@@ -28,3 +28,4 @@ class PackedSeqTest extends FlatSpec with Matchers {
     transformed.byteSize shouldBe 8
   }
 }
+*/

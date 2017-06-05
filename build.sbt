@@ -1,11 +1,11 @@
-scalaVersion in ThisBuild := "2.11.8"
+scalaVersion in ThisBuild := "2.12.2"
 
 lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
   resolvers += Resolver.url(
     "scalameta",
     url("http://dl.bintray.com/scalameta/maven"))(Resolver.ivyStylePatterns),
   addCompilerPlugin(
-    "org.scalameta" % "paradise" % "3.0.0.132" cross CrossVersion.full),
+    "org.scalameta" % "paradise" % "3.0.0-M8" cross CrossVersion.full),
   scalacOptions += "-Xplugin-require:macroparadise",
   scalacOptions in (Compile, console) := Seq(), // macroparadise plugin doesn't work in repl yet.
   sources in (Compile, doc) := Nil // macroparadise doesn't work with scaladoc yet.
@@ -14,8 +14,13 @@ lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
 lazy val macros = (project in file("macros")).settings(
   name := "scala-packed-macro",
   metaMacroSettings,
-  libraryDependencies += "org.scalameta" %% "scalameta" % "1.4.0.544",
-  libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1"
+  libraryDependencies ++= Seq(
+    "org.scalameta" %% "scalameta" % "1.7.0",
+    "org.scalatest" %% "scalatest" % "3.0.1",
+    "com.chuusai" %% "shapeless" % "2.3.2",
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
+    "ch.qos.logback" % "logback-classic" % "1.2.3"
+  )
 )
 
 // Use macros in this project.

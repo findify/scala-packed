@@ -8,7 +8,7 @@ import org.openjdk.jmh.annotations._
   * Created by shutty on 11/22/16.
   */
 
-@Packed class Foo(a: Int, b: Long)
+/*@Packed class Foo(a: Int, b: Long)
 case class Bar(a: Int, b: Long)
 
 @State(Scope.Benchmark)
@@ -34,3 +34,4 @@ class PackedClassBenchmark {
     bar.a + bar.b
   }
 }
+*/

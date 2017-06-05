@@ -2,13 +2,16 @@ package io.findify.scalapacked
 
 import java.util.concurrent.TimeUnit
 
+import io.findify.scalapacked.StructSeq.StructCanBuildFrom
+import io.findify.scalapacked.pool.MemoryPool
+import io.findify.scalapacked.types.IntPacked
 import org.openjdk.jmh.annotations._
 
 /**
   * Created by shutty on 11/22/16.
   */
 
-@Packed class Intp(a:Int)
+case class Intp(a:Int) extends Struct
 case class Intc(a:Int)
 
 @State(Scope.Benchmark)
@@ -17,13 +20,26 @@ case class Intc(a:Int)
 class PackedSeqBenchmark {
   var list: List[Intc] = _
   var array: Array[Int] = _
-  var pseq: PackedSeq[Intp] = _
+  var pseq: StructSeq[Intp] = _
+
+  implicit val encoder = new Encoder[Intp] {
+    override def write(value: Intp, buffer: MemoryPool): Int = {
+      IntPacked.write(8, buffer)
+      IntPacked.write(value.a, buffer)
+    }
+  }
+
+  implicit val decoder = new Decoder[Intp] {
+    override def read(buffer: MemoryPool, offset: Int): Intp = Intp(IntPacked.read(buffer, offset + 4))
+    override def size(buffer: MemoryPool, offset: Int): Int = 8
+  }
 
   @Setup
   def setup = {
+    implicit def cbf = new StructCanBuildFrom[Intp]()
     array = (0 to 1000).toArray
     list = array.map(i => Intc(i)).toList
-    pseq = PackedSeq[Intp](array.map(i => Intp(i)).toSeq)
+    pseq = array.map(i => Intp(i))
   }
 
   @Benchmark

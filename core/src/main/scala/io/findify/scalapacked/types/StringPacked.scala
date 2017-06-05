@@ -2,21 +2,22 @@ package io.findify.scalapacked.types
 
 import java.nio.ByteBuffer
 
+import io.findify.scalapacked.pool.MemoryPool
+
 /**
   * Created by shutty on 11/22/16.
   */
 object StringPacked extends PackedType[String] {
   override def size(value:String): Int = value.getBytes.length + 4
-  override def write(value:String, buffer: ByteBuffer): Unit = {
+  override def write(value:String, buffer: MemoryPool): Int = {
     val stringBuffer = value.getBytes
-    buffer.putInt(stringBuffer.length)
-    buffer.put(stringBuffer)
+    val offset = buffer.writeInt(stringBuffer.length)
+    buffer.writeBytes(stringBuffer)
+    offset
   }
-  override def read(buffer: ByteBuffer, offset: Int): String = {
-    val len = buffer.getInt(offset)
-    val stringBuffer = new Array[Byte](len)
-    buffer.position(offset + 4)
-    buffer.get(stringBuffer)
+  override def read(buffer: MemoryPool, offset: Int): String = {
+    val len = buffer.readInt(offset)
+    val stringBuffer = buffer.readBytes(offset + 4, len)
     new String(stringBuffer)
   }
 }
