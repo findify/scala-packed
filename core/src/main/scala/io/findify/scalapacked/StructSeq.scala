@@ -19,6 +19,18 @@ class StructSeq[A <: Struct](pool: MemoryPool = new HeapPool(20))(implicit encod
       offset += size
     }
   }
+
+  override def size: Int = {
+    val poolSize = pool.size
+    var offset = 0
+    var count = 0
+    while (offset < poolSize) {
+      val size = decoder.size(pool, offset)
+      count += 1
+      offset += size
+    }
+    count
+  }
 }
 
 object StructSeq {
@@ -43,5 +55,5 @@ object StructSeq {
     def apply = new StructBuilder[A]()
     def apply(from: Any) = new StructBuilder[A]()
   }
-  
+
 }

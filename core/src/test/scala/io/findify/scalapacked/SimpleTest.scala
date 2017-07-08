@@ -9,8 +9,6 @@ import io.findify.scalapacked.types.{FloatPacked, IntPacked, PackedType, StringP
 import org.scalatest.{FlatSpec, Matchers}
 import shapeless._
 
-import scala.collection.generic.CanBuildFrom
-import scala.collection.{TraversableLike, mutable}
 
 /**
   * Created by shutty on 11/19/16.
@@ -53,21 +51,22 @@ class FooDecoder extends Decoder[Foo] {
   }
 }
 
-
-
 class SimpleTest extends FlatSpec with Matchers {
+  implicit val encoder = new FooEncoder()
+  implicit val decoder = new FooDecoder()
+  implicit def cbf = new StructCanBuildFrom[Foo]()
 
   "case class with int" should "be written to buffer" in {
     val in = Foo(17, 24.1f, "123")
-    in.i1 shouldBe 17
-    in.f2 shouldBe 24.1f
-    in.s shouldBe "123"
+    val pool = new HeapPool()
+    encoder.write(in, pool)
+    val out = decoder.read(pool, 0)
+    out.i1 shouldBe 17
+    out.f2 shouldBe 24.1f
+    out.s shouldBe "123"
   }
 
   it should "convert from normal seq" in {
-    implicit val encoder = new FooEncoder()
-    implicit val decoder = new FooDecoder()
-    implicit def cbf = new StructCanBuildFrom[Foo]()
     val buf = Range(0, 10).map(r => Foo(r, r.toFloat, r.toString))
     buf.size shouldBe 10
     buf.head shouldBe Foo(0, 0.0f, "0")
