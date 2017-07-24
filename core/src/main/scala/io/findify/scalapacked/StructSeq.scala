@@ -6,7 +6,7 @@ import io.findify.scalapacked.pool.{HeapPool, MemoryPool}
 import scala.collection.{TraversableLike, mutable}
 import scala.collection.generic.CanBuildFrom
 
-class StructSeq[A <: Struct](pool: MemoryPool = new HeapPool(20))(implicit encoder: Encoder[A], decoder: Decoder[A]) extends Traversable[A] with TraversableLike[A, StructSeq[A]] {
+class StructSeq[A](pool: MemoryPool = new HeapPool(20))(implicit encoder: Encoder[A], decoder: Decoder[A]) extends Traversable[A] with TraversableLike[A, StructSeq[A]] {
   override protected[this] def newBuilder = new StructBuilder[A]()
 
   def foreach[U](f: A => U): Unit = {
@@ -34,7 +34,7 @@ class StructSeq[A <: Struct](pool: MemoryPool = new HeapPool(20))(implicit encod
 }
 
 object StructSeq {
-  class StructBuilder[A <: Struct](implicit encoder: Encoder[A], decoder: Decoder[A]) extends mutable.Builder[A, StructSeq[A]] {
+  class StructBuilder[A](implicit encoder: Encoder[A], decoder: Decoder[A]) extends mutable.Builder[A, StructSeq[A]] {
     private var pool = new HeapPool(20)
     private var size = 0
     override def +=(elem: A) = {
@@ -51,9 +51,16 @@ object StructSeq {
     }
   }
 
-  class StructCanBuildFrom[A <: Struct](implicit encoder: Encoder[A], decoder: Decoder[A]) extends CanBuildFrom[Any, A, StructSeq[A]] {
+  class StructCanBuildFrom[A](implicit encoder: Encoder[A], decoder: Decoder[A]) extends CanBuildFrom[Any, A, StructSeq[A]] {
     def apply = new StructBuilder[A]()
     def apply(from: Any) = new StructBuilder[A]()
+  }
+
+  def apply[A](item: A, items: A*)(implicit encoder: Encoder[A], decoder: Decoder[A]): StructSeq[A] = {
+    val builder = new StructBuilder[A]()
+    builder += item
+    builder ++= items
+    builder.result()
   }
 
 }

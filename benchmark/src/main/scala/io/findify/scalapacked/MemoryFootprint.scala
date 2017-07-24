@@ -2,18 +2,17 @@ package io.findify.scalapacked
 
 import io.findify.scalapacked.StructSeq.StructCanBuildFrom
 import io.findify.scalapacked.pool.MemoryPool
-import io.findify.scalapacked.types.{IntPacked, StringPacked}
 import org.github.jamm.MemoryMeter
 
 /**
   * Created by shutty on 11/22/16.
   */
 
-case class PackedInt(a:Int, b: String) extends Struct
+case class PackedInt(a:Int, b: String)
 case class WrappedInt(a:Int, b: String)
 
 object MemoryFootprint {
-  def main(args: Array[String]): Unit = {
+/*  def main(args: Array[String]): Unit = {
     implicit val encoder = new Encoder[PackedInt] {
       override def write(value: PackedInt, buffer: MemoryPool): Int = {
         IntPacked.write(4 + IntPacked.size(value.a) + StringPacked.size(value.b), buffer)
@@ -39,5 +38,5 @@ object MemoryFootprint {
     val meter = new MemoryMeter()
     println(s"list of ints wrapped in case class = ${meter.measureDeep(listInts)}")
     println(s"packed seq = ${meter.measureDeep(listPackedInts)}")
-  }
+  }*/
 }

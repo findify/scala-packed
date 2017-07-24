@@ -4,14 +4,14 @@ import java.util.concurrent.TimeUnit
 
 import io.findify.scalapacked.StructSeq.StructCanBuildFrom
 import io.findify.scalapacked.pool.MemoryPool
-import io.findify.scalapacked.types.IntPacked
+/*import io.findify.scalapacked.types.IntPacked
 import org.openjdk.jmh.annotations._
 
 /**
   * Created by shutty on 11/22/16.
   */
 
-case class Intp(a:Int) extends Struct
+case class Intp(a:Int)
 case class Intc(a:Int)
 
 @State(Scope.Benchmark)
@@ -67,3 +67,4 @@ class PackedSeqBenchmark {
     counter
   }
 }
+*/
