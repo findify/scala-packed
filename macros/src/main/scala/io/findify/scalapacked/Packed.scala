@@ -5,7 +5,7 @@ package io.findify.scalapacked
   */
 
 import scala.meta._
-
+/*
 class Packed extends scala.annotation.StaticAnnotation {
   inline def apply(defn: Any): Any = meta {
     defn match {
@@ -40,3 +40,4 @@ class Packed extends scala.annotation.StaticAnnotation {
     }
   }
 }
+*/

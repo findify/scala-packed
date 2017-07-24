@@ -3,12 +3,12 @@ scalaVersion in ThisBuild := "2.12.2"
 lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
   resolvers += Resolver.url(
     "scalameta",
-    url("http://dl.bintray.com/scalameta/maven"))(Resolver.ivyStylePatterns),
+    url("http://dl.bintray.com/scalameta/maven"))(Resolver.ivyStylePatterns)/*,
   addCompilerPlugin(
     "org.scalameta" % "paradise" % "3.0.0-M8" cross CrossVersion.full),
   scalacOptions += "-Xplugin-require:macroparadise",
   scalacOptions in (Compile, console) := Seq(), // macroparadise plugin doesn't work in repl yet.
-  sources in (Compile, doc) := Nil // macroparadise doesn't work with scaladoc yet.
+  sources in (Compile, doc) := Nil // macroparadise doesn't work with scaladoc yet.*/
 )
 
 lazy val macros = (project in file("macros")).settings(
