@@ -1,14 +1,9 @@
 package io.findify.scalapacked
 
-import java.nio.ByteBuffer
-
 import com.typesafe.scalalogging.LazyLogging
-import io.findify.scalapacked.StructSeq.StructCanBuildFrom
 import io.findify.scalapacked.pool.{HeapPool, MemoryPool}
 import io.findify.scalapacked.types.{FloatPacked, IntPacked, PackedType, StringPacked}
 import org.scalatest.{FlatSpec, Matchers}
-import shapeless._
-
 
 /**
   * Created by shutty on 11/19/16.
@@ -23,56 +18,48 @@ object DoubleFormat {
 }
 
 
-case class Foo(i1: Int, f2: Float, s: String) extends Struct
+case class Foo(offset: Int) extends AnyVal {
+  def i1(implicit buffer: MemoryPool): Int = IntPacked.read(buffer, offset + 4)
+  def f2(implicit buffer: MemoryPool): Float = FloatPacked.read(buffer, offset + 4 + IntPacked.size(i1))
+  def s(implicit buffer: MemoryPool): String = StringPacked.read(buffer, offset + 4 + IntPacked.size(i1) + FloatPacked.size(f2))
+}
 
-class FooEncoder extends Encoder[Foo] with LazyLogging {
-  override def write(value: Foo, buffer: MemoryPool): Int = {
+
+class FooCodec extends Codec[Foo] {
+  override def build(offset: Int): Foo = new Foo(offset)
+}
+case object Foo extends LazyLogging  {
+  def apply(i1: Int, f2: Float, s: String)(implicit buffer: MemoryPool): Foo = {
     val offset = buffer.size
-    val size = IntPacked.size(value.i1) + FloatPacked.size(value.f2) + StringPacked.size(value.s) + 4
+    val size = IntPacked.size(i1) + FloatPacked.size(f2) + StringPacked.size(s) + 4
     IntPacked.write(size, buffer)
-    IntPacked.write(value.i1, buffer)
-    FloatPacked.write(value.f2, buffer)
-    StringPacked.write(value.s, buffer)
+    IntPacked.write(i1, buffer)
+    FloatPacked.write(f2, buffer)
+    StringPacked.write(s, buffer)
     logger.info(s"wrote $size bytes at offset $offset")
-    offset
-  }
-}
-
-class FooDecoder extends Decoder[Foo] {
-  override def read(buffer: MemoryPool, offset: Int): Foo = {
-    val i1 = IntPacked.read(buffer, offset + 4)
-    val f2 = FloatPacked.read(buffer, offset + 4 + IntPacked.size(i1))
-    val s = StringPacked.read(buffer, offset + 4 + IntPacked.size(i1) + FloatPacked.size(f2))
-    Foo(i1, f2, s)
+    new Foo(offset)
   }
 
-  override def size(buffer: MemoryPool, offset: Int): Int = {
-    IntPacked.read(buffer, offset)
-  }
 }
+
 
 class SimpleTest extends FlatSpec with Matchers {
-  implicit val encoder = new FooEncoder()
-  implicit val decoder = new FooDecoder()
-  implicit def cbf = new StructCanBuildFrom[Foo]()
 
   "case class with int" should "be written to buffer" in {
+    implicit val pool = new HeapPool()
     val in = Foo(17, 24.1f, "123")
-    val pool = new HeapPool()
-    encoder.write(in, pool)
-    val out = decoder.read(pool, 0)
-    out.i1 shouldBe 17
-    out.f2 shouldBe 24.1f
-    out.s shouldBe "123"
+    in.i1 shouldBe 17
+    in.f2 shouldBe 24.1f
+    in.s shouldBe "123"
   }
 
   it should "convert from normal seq" in {
-    val buf = Range(0, 10).map(r => Foo(r, r.toFloat, r.toString))
-    buf.size shouldBe 10
-    buf.head shouldBe Foo(0, 0.0f, "0")
-    buf.last shouldBe Foo(9, 9.0f, "9")
-    buf.map(_.i1).sum shouldBe 45
-    buf.map(_.s).mkString shouldBe "0123456789"
+    implicit val pool = new HeapPool()
+    implicit val codec = new FooCodec()
+    val buf = Range(0, 10).foreach(r => Foo(r, r.toFloat, r.toString))
+    val seq = new StructBuffer[Foo](pool)
+    seq.size shouldBe 10
+    seq.foreach(x => { x.i1.toString shouldBe x.s})
   }
 
 }

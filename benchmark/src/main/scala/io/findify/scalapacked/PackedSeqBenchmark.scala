@@ -2,7 +2,7 @@ package io.findify.scalapacked
 
 import java.util.concurrent.TimeUnit
 
-import io.findify.scalapacked.StructSeq.StructCanBuildFrom
+/*import io.findify.scalapacked.StructBuffer.StructCanBuildFrom
 import io.findify.scalapacked.pool.MemoryPool
 import io.findify.scalapacked.types.IntPacked
 import org.openjdk.jmh.annotations._
@@ -20,7 +20,7 @@ case class Intc(a:Int)
 class PackedSeqBenchmark {
   var list: List[Intc] = _
   var array: Array[Int] = _
-  var pseq: StructSeq[Intp] = _
+  var pseq: StructBuffer[Intp] = _
 
   implicit val encoder = new Encoder[Intp] {
     override def write(value: Intp, buffer: MemoryPool): Int = {
@@ -67,3 +67,4 @@ class PackedSeqBenchmark {
     counter
   }
 }
+*/

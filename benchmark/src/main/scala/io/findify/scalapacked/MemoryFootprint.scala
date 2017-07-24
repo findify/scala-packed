@@ -1,6 +1,5 @@
 package io.findify.scalapacked
 
-import io.findify.scalapacked.StructSeq.StructCanBuildFrom
 import io.findify.scalapacked.pool.MemoryPool
 import io.findify.scalapacked.types.{IntPacked, StringPacked}
 import org.github.jamm.MemoryMeter
@@ -9,7 +8,7 @@ import org.github.jamm.MemoryMeter
   * Created by shutty on 11/22/16.
   */
 
-case class PackedInt(a:Int, b: String) extends Struct
+/*case class PackedInt(a:Int, b: String) extends Struct
 case class WrappedInt(a:Int, b: String)
 
 object MemoryFootprint {
@@ -33,7 +32,7 @@ object MemoryFootprint {
     implicit def cbf = new StructCanBuildFrom[PackedInt]()
     val arrayInts = (0 to 100000).toArray
     val listInts = arrayInts.map(i => WrappedInt(i, i.toString)).toList
-    val listPackedInts: StructSeq[PackedInt] = arrayInts.toList.map(i => PackedInt(i, i.toString))
+    val listPackedInts: StructBuffer[PackedInt] = arrayInts.toList.map(i => PackedInt(i, i.toString))
 
 
     val meter = new MemoryMeter()
@@ -41,3 +40,4 @@ object MemoryFootprint {
     println(s"packed seq = ${meter.measureDeep(listPackedInts)}")
   }
 }
+*/
