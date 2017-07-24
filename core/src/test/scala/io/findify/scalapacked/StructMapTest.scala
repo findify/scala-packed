@@ -21,5 +21,6 @@ class StructMapTest extends FlatSpec with Matchers {
 
   it should "extract element" in {
     map.get("x") shouldBe Some(Foo(1, 1.0f, "x"))
+    map.get("y") shouldBe None
   }
 }

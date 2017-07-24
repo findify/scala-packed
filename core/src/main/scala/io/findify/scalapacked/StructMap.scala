@@ -2,25 +2,34 @@ package io.findify.scalapacked
 
 import io.findify.scalapacked.pool.{HeapPool, MemoryPool}
 
-import scala.collection.generic.{CanBuildFrom, ImmutableMapFactory}
+import scala.collection.generic.{CanBuildFrom, ImmutableMapFactory, MutableMapFactory}
 import scala.collection.mutable
 
 
-class StructMap[A, +B](pool: MemoryPool = new HeapPool(20))(implicit ke: Encoder[A], kd: Decoder[A], ve: Encoder[B], vd: Decoder[B])
-  extends scala.collection.immutable.Map[A, B] with scala.collection.immutable.MapLike[A, B, StructMap[A, B]] {
+class StructMap[A, B](pool: MemoryPool = new HeapPool(20))(implicit ke: Encoder[A], kd: Decoder[A], ve: Encoder[B], vd: Decoder[B])
+  extends scala.collection.mutable.Map[A, B] with scala.collection.mutable.MapLike[A, B, StructMap[A, B]] {
+  val map = new StructMapImpl[A,B](16)
+
+  override def size: Int = map.count
   override def empty: StructMap[A, B] = ???
   override def iterator: Iterator[(A, B)] = ???
-  override def +[V1 >: B] (kv: (A, V1)): StructMap[A, V1] = ???
   override def -(key: A): StructMap[A, B] = ???
-  override def get(key: A): Option[B] = ???
+  override def get(key: A): Option[B] = {
+    map.get(key)
+  }
+  override def +=(kv: (A, B)): StructMap.this.type = {
+    map.put(kv._1, kv._2)
+    this
+  }
+  override def -=(key: A): StructMap.this.type = ???
 }
 
-object StructMap extends ImmutableMapFactory[StructMap] {
+object StructMap extends MutableMapFactory[StructMap] {
 
   class StructMapBuilder[A,B](implicit ke: Encoder[A], kd: Decoder[A], ve: Encoder[B], vd: Decoder[B]) extends mutable.Builder[(A,B), StructMap[A,B]] {
     private var map = new StructMap[A,B]()
     override def +=(elem: (A, B)) = {
-      map = map + elem
+      map += elem
       this
     }
     override def clear(): Unit = {
