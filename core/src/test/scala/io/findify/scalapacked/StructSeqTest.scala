@@ -1,7 +1,7 @@
 package io.findify.scalapacked
 
 import io.findify.scalapacked.StructSeq.StructCanBuildFrom
-import io.findify.scalapacked.example.{Foo, FooDecoder, FooEncoder}
+import io.findify.scalapacked.example.{Foo, FooCodec}
 import org.scalatest.{FlatSpec, Matchers}
 
 
@@ -11,8 +11,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 
 class StructSeqTest extends FlatSpec with Matchers {
-  implicit val encoder = new FooEncoder()
-  implicit val decoder = new FooDecoder()
+  implicit val encoder = new FooCodec()
   val buf = Range(0, 10).map(r => Foo(r, r.toFloat, r.toString)).to[StructSeq](new StructCanBuildFrom[Foo]())
 
   "case class with int" should "convert from normal seq" in {

@@ -6,7 +6,7 @@ import scala.collection.generic.{CanBuildFrom, ImmutableMapFactory, MutableMapFa
 import scala.collection.mutable
 
 
-class StructMap[A, B](pool: MemoryPool = new HeapPool(20))(implicit ke: Encoder[A], kd: Decoder[A], ve: Encoder[B], vd: Decoder[B])
+class StructMap[A, B](pool: MemoryPool = new HeapPool(20))(implicit kc: Codec[A], vc: Codec[B])
   extends scala.collection.mutable.Map[A, B] with scala.collection.mutable.MapLike[A, B, StructMap[A, B]] {
   val map = new StructMapImpl[A,B](16)
 
@@ -26,7 +26,7 @@ class StructMap[A, B](pool: MemoryPool = new HeapPool(20))(implicit ke: Encoder[
 
 object StructMap extends MutableMapFactory[StructMap] {
 
-  class StructMapBuilder[A,B](implicit ke: Encoder[A], kd: Decoder[A], ve: Encoder[B], vd: Decoder[B]) extends mutable.Builder[(A,B), StructMap[A,B]] {
+  class StructMapBuilder[A,B](implicit kc: Codec[A], vc: Codec[B]) extends mutable.Builder[(A,B), StructMap[A,B]] {
     private var map = new StructMap[A,B]()
     override def +=(elem: (A, B)) = {
       map += elem
@@ -43,15 +43,15 @@ object StructMap extends MutableMapFactory[StructMap] {
 
   override def empty[A, B]: StructMap[A, B] = ???
 
-  def newStructBuilder[A, B](implicit ke: Encoder[A], kd: Decoder[A], ve: Encoder[B], vd: Decoder[B]): mutable.Builder[(A, B), StructMap[A, B]] = new StructMapBuilder[A,B]()
-  implicit def canBuildFrom[A, B](implicit ke: Encoder[A], kd: Decoder[A], ve: Encoder[B], vd: Decoder[B]): CanBuildFrom[Coll, (A, B), StructMap[A, B]] = new StructMapCanBuildFrom[A, B]
+  def newStructBuilder[A, B](implicit kc: Codec[A], vc: Codec[B]): mutable.Builder[(A, B), StructMap[A, B]] = new StructMapBuilder[A,B]()
+  implicit def canBuildFrom[A, B](implicit kc: Codec[A], vc: Codec[B]): CanBuildFrom[Coll, (A, B), StructMap[A, B]] = new StructMapCanBuildFrom[A, B]
 
-  class StructMapCanBuildFrom[A, B](implicit ke: Encoder[A], kd: Decoder[A], ve: Encoder[B], vd: Decoder[B]) extends CanBuildFrom[Coll, (A,B), StructMap[A,B]] {
+  class StructMapCanBuildFrom[A, B](implicit kc: Codec[A], vc: Codec[B]) extends CanBuildFrom[Coll, (A,B), StructMap[A,B]] {
     def apply(from: Coll) = newStructBuilder[A, B]
     def apply() = newStructBuilder[A,B]
   }
 
-  def apply[A, B](pair: (A, B), pairs: (A,B)*)(implicit ke: Encoder[A], kd: Decoder[A], ve: Encoder[B], vd: Decoder[B]): StructMap[A,B] = {
+  def apply[A, B](pair: (A, B), pairs: (A,B)*)(implicit kc: Codec[A], vc: Codec[B]): StructMap[A,B] = {
     val builder = newStructBuilder[A,B]
     builder += pair
     builder ++= pairs

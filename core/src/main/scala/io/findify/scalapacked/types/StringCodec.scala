@@ -1,13 +1,11 @@
 package io.findify.scalapacked.types
 
-import com.typesafe.scalalogging.LazyLogging
-import io.findify.scalapacked.Decoder
+import io.findify.scalapacked.Codec
 import io.findify.scalapacked.pool.MemoryPool
 
-object StringDecoder extends Decoder[String] with LazyLogging {
+object StringCodec extends Codec[String] {
   override def read(buffer: MemoryPool, offset: Int): String = {
     val len = buffer.readInt(offset)
-    //logger.debug(s"string len $len")
     val stringBuffer = buffer.readBytes(offset + 4, len)
     new String(stringBuffer)
   }
@@ -17,5 +15,12 @@ object StringDecoder extends Decoder[String] with LazyLogging {
 
   override def size(item: String): Int = {
     4 + item.getBytes.length
+  }
+
+  override def write(value: String, buffer: MemoryPool): Int = {
+    val stringBuffer = value.getBytes
+    val offset = buffer.writeInt(stringBuffer.length)
+    buffer.writeBytes(stringBuffer)
+    offset
   }
 }

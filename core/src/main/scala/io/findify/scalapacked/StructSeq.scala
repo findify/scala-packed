@@ -6,15 +6,15 @@ import io.findify.scalapacked.pool.{HeapPool, MemoryPool}
 import scala.collection.{TraversableLike, mutable}
 import scala.collection.generic.CanBuildFrom
 
-class StructSeq[A](pool: MemoryPool = new HeapPool(20))(implicit encoder: Encoder[A], decoder: Decoder[A]) extends Traversable[A] with TraversableLike[A, StructSeq[A]] {
+class StructSeq[A](pool: MemoryPool = new HeapPool(20))(implicit codec: Codec[A]) extends Traversable[A] with TraversableLike[A, StructSeq[A]] {
   override protected[this] def newBuilder = new StructBuilder[A]()
 
   def foreach[U](f: A => U): Unit = {
     val poolSize = pool.size
     var offset = 0
     while (offset < poolSize) {
-      val size = decoder.size(pool, offset)
-      val item: A = decoder.read(pool, offset)
+      val size = codec.size(pool, offset)
+      val item: A = codec.read(pool, offset)
       f(item)
       offset += size
     }
@@ -25,7 +25,7 @@ class StructSeq[A](pool: MemoryPool = new HeapPool(20))(implicit encoder: Encode
     var offset = 0
     var count = 0
     while (offset < poolSize) {
-      val size = decoder.size(pool, offset)
+      val size = codec.size(pool, offset)
       count += 1
       offset += size
     }
@@ -34,11 +34,11 @@ class StructSeq[A](pool: MemoryPool = new HeapPool(20))(implicit encoder: Encode
 }
 
 object StructSeq {
-  class StructBuilder[A](implicit encoder: Encoder[A], decoder: Decoder[A]) extends mutable.Builder[A, StructSeq[A]] {
+  class StructBuilder[A](implicit codec: Codec[A]) extends mutable.Builder[A, StructSeq[A]] {
     private var pool = new HeapPool(20)
     private var size = 0
     override def +=(elem: A) = {
-      encoder.write(elem, pool)
+      codec.write(elem, pool)
       size += 1
       this
     }
@@ -51,12 +51,12 @@ object StructSeq {
     }
   }
 
-  class StructCanBuildFrom[A](implicit encoder: Encoder[A], decoder: Decoder[A]) extends CanBuildFrom[Any, A, StructSeq[A]] {
+  class StructCanBuildFrom[A](implicit codec: Codec[A]) extends CanBuildFrom[Any, A, StructSeq[A]] {
     def apply = new StructBuilder[A]()
     def apply(from: Any) = new StructBuilder[A]()
   }
 
-  def apply[A](item: A, items: A*)(implicit encoder: Encoder[A], decoder: Decoder[A]): StructSeq[A] = {
+  def apply[A](item: A, items: A*)(implicit codec: Codec[A]): StructSeq[A] = {
     val builder = new StructBuilder[A]()
     builder += item
     builder ++= items

@@ -5,14 +5,14 @@ import java.util
 import com.typesafe.scalalogging.LazyLogging
 import io.findify.scalapacked.pool.{HeapPool, MemoryPool}
 
-class StructMapImpl[A, B](var bucketCount: Int, var pool: MemoryPool = new HeapPool(1024))(implicit ke: Encoder[A], kd: Decoder[A], ve: Encoder[B], vd: Decoder[B]) extends LazyLogging {
+class StructMapImpl[A, B](var bucketCount: Int, var pool: MemoryPool = new HeapPool(1024))(implicit kc: Codec[A], vc: Codec[B]) extends LazyLogging {
   var buckets = new Array[Int](bucketCount)
   var usedBuckets = new util.BitSet(bucketCount)
   var count = 0
 
   private def findBucket(key: A): Int = {
     var i = key.hashCode() % bucketCount
-    while (usedBuckets.get(i) && (key != kd.read(pool, buckets(i)))) {
+    while (usedBuckets.get(i) && (key != kc.read(pool, buckets(i)))) {
       i = (i + 1) % bucketCount
     }
     i
@@ -20,8 +20,8 @@ class StructMapImpl[A, B](var bucketCount: Int, var pool: MemoryPool = new HeapP
 
   def put(key: A, value: B): Unit = {
     if (count > (bucketCount / 2)) rebuild
-    val offset = ke.write(key, pool)
-    ve.write(value, pool)
+    val offset = kc.write(key, pool)
+    vc.write(value, pool)
     //logger.debug(s"put: k=$key, v=$value, offset=$offset, size=${pool.size}")
 
     val bucket = findBucket(key)
@@ -37,8 +37,8 @@ class StructMapImpl[A, B](var bucketCount: Int, var pool: MemoryPool = new HeapP
   def get(key: A): Option[B] = {
     val bucket = findBucket(key)
     if (usedBuckets.get(bucket)) {
-      val keySize = kd.size(pool, buckets(bucket))
-      Some(vd.read(pool, buckets(bucket) + keySize))
+      val keySize = kc.size(pool, buckets(bucket))
+      Some(vc.read(pool, buckets(bucket) + keySize))
     } else {
       None
     }
@@ -51,9 +51,9 @@ class StructMapImpl[A, B](var bucketCount: Int, var pool: MemoryPool = new HeapP
     while (i < bucketCount) {
       if (usedBuckets.get(i)) {
         //logger.debug(s"reading key at ${buckets(i)}")
-        val key = kd.read(pool, buckets(i))
-        val keySize = kd.size(pool, buckets(i))
-        val value = vd.read(pool, buckets(i) + keySize)
+        val key = kc.read(pool, buckets(i))
+        val keySize = kc.size(pool, buckets(i))
+        val value = vc.read(pool, buckets(i) + keySize)
         larger.put(key, value)
       }
       i += 1

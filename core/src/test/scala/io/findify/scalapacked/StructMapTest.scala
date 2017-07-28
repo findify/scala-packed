@@ -1,12 +1,11 @@
 package io.findify.scalapacked
 
 import io.findify.scalapacked.StructSeq.StructCanBuildFrom
-import io.findify.scalapacked.example.{Foo, FooDecoder, FooEncoder}
+import io.findify.scalapacked.example.{Foo, FooCodec}
 import org.scalatest.{FlatSpec, Matchers}
 
 class StructMapTest extends FlatSpec with Matchers {
-  implicit val encoder = new FooEncoder()
-  implicit val decoder = new FooDecoder()
+  implicit val codec = new FooCodec()
   import api._
   val map = StructMap("x" -> Foo(1, 1.0f, "x"))
 
