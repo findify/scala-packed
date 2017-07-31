@@ -8,6 +8,7 @@ object codec {
   implicit val intCodec: Codec[Int] = IntCodec
   implicit val floatCodec: Codec[Float] = FloatCodec
   implicit val longCodec: Codec[Long] = LongCodec
+  implicit val doubleCodec: Codec[Double] = DoubleCodec
 
   object generic extends LabelledTypeClassCompanion[Codec] {
     implicit def intCodec: Codec[Int] = IntCodec
