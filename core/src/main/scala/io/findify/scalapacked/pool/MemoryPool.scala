@@ -11,6 +11,7 @@ trait MemoryPool {
   def writeBytes(bytes: Array[Byte]): Int
   def readBytes(offset: Int, length: Int): Array[Byte]
   def writeInt(value: Int): Int
+  def writeInt(value: Int, offset: Int): Int
   def readInt(offset: Int): Int
   def writeLong(value: Long): Int
   def readLong(offset: Int): Long

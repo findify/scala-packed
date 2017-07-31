@@ -11,6 +11,7 @@ object EmptyPool extends MemoryPool {
   override def writeBytes(bytes: Array[Byte]): Int = fail
   override def readBytes(offset: Int, length: Int): Array[Byte] = fail
   override def writeInt(value: Int): Int = fail
+  override def writeInt(value: Int, offset: Int): Int = fail
   override def readInt(offset: Int): Int = fail
   override def writeLong(value: Long): Int = fail
   override def readLong(offset: Int): Long = fail

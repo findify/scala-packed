@@ -1,7 +1,7 @@
 package io.findify.scalapacked
 import io.findify.scalapacked.pool.MemoryPool
 import io.findify.scalapacked.types._
-import shapeless.{:+:, ::, CNil, Coproduct, HList, HNil, LabelledTypeClass, LabelledTypeClassCompanion}
+import shapeless.{:+:, ::, CNil, Coproduct, HList, HNil, LabelledTypeClass, LabelledTypeClassCompanion, Lazy}
 
 object codec {
   implicit val stringCodec: Codec[String] = StringCodec
@@ -12,10 +12,9 @@ object codec {
   implicit val noneCodec = OptionCodec.NoneCodec
   implicit def someCodec[T](implicit cdc: Codec[T]) = new OptionCodec.SomeCodec[T]()(cdc)
 
+  def deriveCodec[T](implicit codec: Lazy[Codec[T]]) = codec.value
+
   object generic extends LabelledTypeClassCompanion[Codec] {
-    implicit def intCodec: Codec[Int] = IntCodec
-    implicit def floatCodec: Codec[Float] = FloatCodec
-    implicit def stringCodec: Codec[String] = StringCodec
 
     object typeClass extends LabelledTypeClass[Codec] {
       override def emptyProduct: Codec[HNil] = new Codec[HNil] {

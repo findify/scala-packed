@@ -14,16 +14,19 @@ class ShapelessDeriveTest extends FlatSpec with Matchers {
 
 
   it should "create derivation for plain case classes" in {
+    import codec._
     import codec.generic._
     size(One(1, 1.0f, "foo")) shouldBe 15
   }
 
   it should "create derivation for nested case classes" in {
+    import codec._
     import codec.generic._
     size(Wrapped("foo", Nested(1))) shouldBe 11
   }
 
   it should "derive classes with custom types" in {
+    import codec._
     import codec.generic._
     implicit val dtCodec = new Codec[SuperDate] {
       override def read(buffer: MemoryPool, offset: Int): SuperDate = SuperDate(

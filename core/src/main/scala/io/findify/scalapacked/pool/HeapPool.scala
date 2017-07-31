@@ -64,6 +64,13 @@ class HeapPool(preallocate: Int = 1024, growthFactor: Float = 1.5f) extends Memo
     bufferLength += 4
     offset
   }
+  def writeInt(value: Int, offset: Int): Int = {
+    buffer(offset) = (value >> 24).toByte
+    buffer(offset + 1) = (value >> 16).toByte
+    buffer(offset + 2) = (value >> 8).toByte
+    buffer(offset + 3) = value.toByte
+    offset
+  }
   override def readInt(offset: Int): Int = {
     if (offset + 4 > buffer.length) throw new IndexOutOfBoundsException()
     val i1 = buffer(offset) & 0xFF
