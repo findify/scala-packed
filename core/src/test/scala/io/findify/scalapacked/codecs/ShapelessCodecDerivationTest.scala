@@ -1,33 +1,25 @@
-package io.findify.scalapacked
+package io.findify.scalapacked.codecs
 
-import java.time.{LocalDateTime, ZoneOffset}
-
-import io.findify.scalapacked.ShapelessDeriveTest._
+import io.findify.scalapacked.codecs.ShapelessCodecDerivationTest._
 import io.findify.scalapacked.pool.MemoryPool
-import io.findify.scalapacked.types.{Codec, FloatCodec, IntCodec, StringCodec}
+import io.findify.scalapacked.types.Codec
 import org.scalatest.{FlatSpec, Matchers}
-import shapeless._
 
-class ShapelessDeriveTest extends FlatSpec with Matchers {
+class ShapelessCodecDerivationTest extends FlatSpec with Matchers {
 
+  import io.findify.scalapacked.codec._
+  import io.findify.scalapacked.codec.generic._
   implicit def size[T](a: T)(implicit codec: Codec[T]):Int = codec.size(a)
 
-
   it should "create derivation for plain case classes" in {
-    import codec._
-    import codec.generic._
     size(One(1, 1.0f, "foo")) shouldBe 15
   }
 
   it should "create derivation for nested case classes" in {
-    import codec._
-    import codec.generic._
     size(Wrapped("foo", Nested(1))) shouldBe 11
   }
 
   it should "derive classes with custom types" in {
-    import codec._
-    import codec.generic._
     implicit val dtCodec = new Codec[SuperDate] {
       override def read(buffer: MemoryPool, offset: Int): SuperDate = SuperDate(
         year = buffer.readInt(offset),
@@ -47,7 +39,7 @@ class ShapelessDeriveTest extends FlatSpec with Matchers {
   }
 }
 
-object ShapelessDeriveTest {
+object ShapelessCodecDerivationTest {
   case class One(i: Int, f: Float, s: String)
   case class Nested(i: Int)
   case class Wrapped(s: String, n: Nested)
