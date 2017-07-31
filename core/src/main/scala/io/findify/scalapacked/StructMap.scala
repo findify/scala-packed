@@ -1,5 +1,8 @@
 package io.findify.scalapacked
 
+import java.util
+
+import io.findify.scalapacked.StructMap.StructMapIterator
 import io.findify.scalapacked.pool.{HeapPool, MemoryPool}
 import io.findify.scalapacked.types.Codec
 
@@ -12,8 +15,8 @@ class StructMap[A, B](pool: MemoryPool = new HeapPool(20))(implicit kc: Codec[A]
   val map = new StructMapImpl[A,B](16)
 
   override def size: Int = map.count
-  override def empty: StructMap[A, B] = ???
-  override def iterator: Iterator[(A, B)] = ???
+  override def empty: StructMap[A, B] = StructMap.empty
+  override def iterator: Iterator[(A, B)] = new StructMapIterator(this)
   override def -(key: A): StructMap[A, B] = ???
   override def get(key: A): Option[B] = {
     map.get(key)
@@ -26,6 +29,32 @@ class StructMap[A, B](pool: MemoryPool = new HeapPool(20))(implicit kc: Codec[A]
 }
 
 object StructMap extends MutableMapFactory[StructMap] {
+
+  class StructMapIterator[A,B](parent: StructMap[A,B])(implicit kc: Codec[A], vc: Codec[B]) extends Iterator[(A,B)] {
+    private var position = 0
+    private val positions = {
+      val pos = new Array[Int](parent.map.bucketCount)
+      var i = 0
+      var ins = 0
+      while (i < parent.map.bucketCount) {
+        if (parent.map.usedBuckets.get(i)) {
+          pos(ins) = parent.map.buckets(i)
+          ins += 1
+        }
+        i += 1
+      }
+      util.Arrays.copyOfRange(pos, 0, ins)
+    }
+    override def hasNext: Boolean = position < positions.length
+    override def next(): (A, B) = {
+      val offset = positions(position)
+      val keySize = kc.size(parent.map.pool, offset)
+      val key = kc.read(parent.map.pool, offset)
+      val value = vc.read(parent.map.pool, offset + keySize)
+      position += 1
+      key -> value
+    }
+  }
 
   class StructMapBuilder[A,B](implicit kc: Codec[A], vc: Codec[B]) extends mutable.Builder[(A,B), StructMap[A,B]] {
     private var map = new StructMap[A,B]()
@@ -42,7 +71,14 @@ object StructMap extends MutableMapFactory[StructMap] {
 
   }
 
-  override def empty[A, B]: StructMap[A, B] = ???
+
+  override def empty[A, B]: StructMap[A, B] = {
+    ???
+  }
+
+  override def newBuilder[A, B]: mutable.Builder[(A, B), StructMap[A, B]] = {
+    ???
+  }
 
   def newStructBuilder[A, B](implicit kc: Codec[A], vc: Codec[B]): mutable.Builder[(A, B), StructMap[A, B]] = new StructMapBuilder[A,B]()
   implicit def canBuildFrom[A, B](implicit kc: Codec[A], vc: Codec[B]): CanBuildFrom[Coll, (A, B), StructMap[A, B]] = new StructMapCanBuildFrom[A, B]
@@ -52,10 +88,16 @@ object StructMap extends MutableMapFactory[StructMap] {
     def apply() = newStructBuilder[A,B]
   }
 
-  def apply[A, B](pair: (A, B), pairs: (A,B)*)(implicit kc: Codec[A], vc: Codec[B]): StructMap[A,B] = {
+  def apply[A,B](pairs: (A, B)*)(implicit kc: Codec[A], vc: Codec[B]): StructMap[A,B] = {
+    val builder = newStructBuilder[A,B]
+    builder ++= pairs
+    builder.result()
+  }
+
+/*  def apply[A, B](pair: (A, B), pairs: (A,B)*)(implicit kc: Codec[A], vc: Codec[B]): StructMap[A,B] = {
     val builder = newStructBuilder[A,B]
     builder += pair
     builder ++= pairs
     builder.result()
-  }
+  }*/
 }

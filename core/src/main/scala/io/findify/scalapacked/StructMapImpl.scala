@@ -12,7 +12,7 @@ class StructMapImpl[A, B](var bucketCount: Int, var pool: MemoryPool = new HeapP
   var count = 0
 
   private def findBucket(key: A): Int = {
-    var i = key.hashCode() % bucketCount
+    var i = math.abs(key.hashCode() % bucketCount)
     while (usedBuckets.get(i) && (key != kc.read(pool, buckets(i)))) {
       i = (i + 1) % bucketCount
     }
