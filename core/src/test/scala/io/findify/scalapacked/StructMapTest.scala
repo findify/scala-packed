@@ -5,8 +5,8 @@ import io.findify.scalapacked.example.{Foo, FooCodec}
 import org.scalatest.{FlatSpec, Matchers}
 
 class StructMapTest extends FlatSpec with Matchers {
-  implicit val codec = new FooCodec()
-  import api._
+  implicit val foocodec = new FooCodec()
+  import codec._
   val map = StructMap("x" -> Foo(1, 1.0f, "x"))
 
 

@@ -1,6 +1,5 @@
 package io.findify.scalapacked.types
 
-import io.findify.scalapacked.Codec
 import io.findify.scalapacked.pool.MemoryPool
 
 object FloatCodec extends Codec[Float] {

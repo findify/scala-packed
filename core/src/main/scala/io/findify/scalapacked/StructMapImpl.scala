@@ -4,6 +4,7 @@ import java.util
 
 import com.typesafe.scalalogging.LazyLogging
 import io.findify.scalapacked.pool.{HeapPool, MemoryPool}
+import io.findify.scalapacked.types.Codec
 
 class StructMapImpl[A, B](var bucketCount: Int, var pool: MemoryPool = new HeapPool(1024))(implicit kc: Codec[A], vc: Codec[B]) extends LazyLogging {
   var buckets = new Array[Int](bucketCount)

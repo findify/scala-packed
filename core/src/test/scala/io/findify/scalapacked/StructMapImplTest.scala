@@ -3,7 +3,7 @@ package io.findify.scalapacked
 import org.scalatest.{FlatSpec, Matchers}
 
 class StructMapImplTest extends FlatSpec with Matchers {
-  import api._
+  import codec._
   "map" should "add elements" in {
     val map = new StructMapImpl[String,String](1024)
     map.put("foo", "bar")

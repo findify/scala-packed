@@ -1,4 +1,4 @@
-package io.findify.scalapacked
+package io.findify.scalapacked.types
 
 import io.findify.scalapacked.pool.MemoryPool
 

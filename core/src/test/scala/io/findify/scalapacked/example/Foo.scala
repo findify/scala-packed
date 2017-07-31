@@ -1,9 +1,8 @@
 package io.findify.scalapacked.example
 
 import com.typesafe.scalalogging.LazyLogging
-import io.findify.scalapacked.Codec
 import io.findify.scalapacked.pool.MemoryPool
-import io.findify.scalapacked.types._
+import io.findify.scalapacked.types.{Codec, _}
 
 case class Foo(i1: Int, f2: Float, s: String)
 

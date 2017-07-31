@@ -1,6 +1,7 @@
 package io.findify.scalapacked
 
 import io.findify.scalapacked.pool.{HeapPool, MemoryPool}
+import io.findify.scalapacked.types.Codec
 
 import scala.collection.generic.{CanBuildFrom, ImmutableMapFactory, MutableMapFactory}
 import scala.collection.mutable

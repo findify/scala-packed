@@ -1,8 +1,10 @@
 package io.findify.scalapacked
 
-import io.findify.scalapacked.ShapelessDeriveTest.One
+import java.time.{LocalDateTime, ZoneOffset}
+
+import io.findify.scalapacked.ShapelessDeriveTest._
 import io.findify.scalapacked.pool.MemoryPool
-import io.findify.scalapacked.types.{FloatCodec, IntCodec, StringCodec}
+import io.findify.scalapacked.types.{Codec, FloatCodec, IntCodec, StringCodec}
 import org.scalatest.{FlatSpec, Matchers}
 import shapeless._
 
@@ -10,59 +12,44 @@ class ShapelessDeriveTest extends FlatSpec with Matchers {
 
   implicit def size[T](a: T)(implicit codec: Codec[T]):Int = codec.size(a)
 
-  object Size extends LabelledTypeClassCompanion[Codec] {
-    implicit def intCodec: Codec[Int] = IntCodec
-    implicit def floatCodec: Codec[Float] = FloatCodec
-    implicit def stringCodec: Codec[String] = StringCodec
-
-    object typeClass extends LabelledTypeClass[Codec] {
-      override def emptyProduct: Codec[HNil] = new Codec[HNil] {
-        override def read(buffer: MemoryPool, offset: Int): HNil = HNil
-        override def size(buffer: MemoryPool, offset: Int): Int = 0
-        override def size(item: HNil): Int = 0
-        override def write(value: HNil, buffer: MemoryPool): Int = 0
-      }
-
-      override def product[H, T <: HList](name: String, ch: Codec[H], ct: Codec[T]): Codec[::[H, T]] = new Codec[::[H, T]] {
-        override def read(buffer: MemoryPool, offset: Int): ::[H, T] = ???
-        override def size(buffer: MemoryPool, offset: Int): Int = ???
-        override def size(item: ::[H, T]): Int = {
-          val head = ch.size(item.head)
-          val tail = ct.size(item.tail)
-          head + tail
-        }
-        override def write(value: ::[H, T], buffer: MemoryPool): Int = ???
-      }
-
-      override def emptyCoproduct: Codec[CNil] = new Codec[CNil] {
-        override def read(buffer: MemoryPool, offset: Int): CNil = ???
-        override def size(buffer: MemoryPool, offset: Int): Int = ???
-        override def size(item: CNil): Int = ???
-        override def write(value: CNil, buffer: MemoryPool): Int = ???
-      }
-
-      override def coproduct[L, R <: Coproduct](name: String, cl: => Codec[L], cr: => Codec[R]): Codec[:+:[L, R]] = new Codec[:+:[L, R]] {
-        override def read(buffer: MemoryPool, offset: Int): :+:[L, R] = ???
-        override def size(buffer: MemoryPool, offset: Int): Int = ???
-        override def size(item: :+:[L, R]): Int = ???
-        override def write(value: :+:[L, R], buffer: MemoryPool): Int = ???
-      }
-
-      override def project[F, G](instance: => Codec[G], to: (F) => G, from: (G) => F): Codec[F] = new Codec[F] {
-        override def read(buffer: MemoryPool, offset: Int): F = from(instance.read(buffer, offset))
-        override def size(buffer: MemoryPool, offset: Int): Int = instance.size(buffer, offset)
-        override def size(item: F): Int = instance.size(to(item))
-        override def write(value: F, buffer: MemoryPool): Int = instance.write(to(value), buffer)
-      }
-    }
-  }
 
   it should "create derivation for plain case classes" in {
-    import Size._
+    import codec.generic._
     size(One(1, 1.0f, "foo")) shouldBe 15
+  }
+
+  it should "create derivation for nested case classes" in {
+    import codec.generic._
+    size(Wrapped("foo", Nested(1))) shouldBe 11
+  }
+
+  it should "derive classes with custom types" in {
+    import codec.generic._
+    implicit val dtCodec = new Codec[SuperDate] {
+      override def read(buffer: MemoryPool, offset: Int): SuperDate = SuperDate(
+        year = buffer.readInt(offset),
+        month = buffer.readInt(offset + 4),
+        day = buffer.readInt(offset + 8)
+      )
+      override def size(buffer: MemoryPool, offset: Int): Int = 12
+      override def size(item: SuperDate): Int = 12
+      override def write(value: SuperDate, buffer: MemoryPool): Int = {
+        val offset = buffer.writeInt(value.year)
+        buffer.writeInt(value.month)
+        buffer.writeInt(value.day)
+        offset
+      }
+    }
+    size(CustomOne(1, SuperDate(1970, 1, 1))) shouldBe 16
   }
 }
 
 object ShapelessDeriveTest {
   case class One(i: Int, f: Float, s: String)
+  case class Nested(i: Int)
+  case class Wrapped(s: String, n: Nested)
+
+  case class CustomOne(i: Int, d: SuperDate)
+
+  case class SuperDate(year: Int, month: Int, day: Int)
 }

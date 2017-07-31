@@ -2,6 +2,7 @@ package io.findify.scalapacked
 
 import io.findify.scalapacked.StructSeq.StructBuilder
 import io.findify.scalapacked.pool.{HeapPool, MemoryPool}
+import io.findify.scalapacked.types.Codec
 
 import scala.collection.{TraversableLike, mutable}
 import scala.collection.generic.CanBuildFrom
