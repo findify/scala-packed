@@ -7,6 +7,7 @@ object EmptyPool extends MemoryPool {
   override def capacity: Int = 0
   override def size: Int = 0
   override def readByte(position: Int): Byte = fail
+  override def writeByte(byte: Byte): Int = fail
   override def writeBytes(bytes: Array[Byte]): Int = fail
   override def readBytes(offset: Int, length: Int): Array[Byte] = fail
   override def writeInt(value: Int): Int = fail

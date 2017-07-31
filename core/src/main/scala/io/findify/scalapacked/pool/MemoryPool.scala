@@ -6,6 +6,7 @@ package io.findify.scalapacked.pool
 trait MemoryPool {
   def capacity: Int
   def size: Int
+  def writeByte(byte: Byte): Int
   def readByte(position: Int): Byte
   def writeBytes(bytes: Array[Byte]): Int
   def readBytes(offset: Int, length: Int): Array[Byte]

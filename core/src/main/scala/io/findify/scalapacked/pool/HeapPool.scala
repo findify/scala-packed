@@ -25,6 +25,14 @@ class HeapPool(preallocate: Int = 1024, growthFactor: Float = 1.5f) extends Memo
 
   override def readByte(position: Int) = buffer(position)
 
+  override def writeByte(byte: Byte): Int = {
+    grow(1)
+    val offset = bufferLength
+    buffer(bufferLength) = byte
+    bufferLength += 1
+    offset
+  }
+
   override def writeBytes(bytes: Array[Byte]) = {
     grow(bytes.length)
     var i = 0
