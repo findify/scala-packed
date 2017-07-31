@@ -11,6 +11,8 @@ object codec {
   implicit val doubleCodec: Codec[Double] = DoubleCodec
   implicit val noneCodec = OptionCodec.NoneCodec
   implicit def someCodec[T](implicit cdc: Codec[T]) = new OptionCodec.SomeCodec[T]()(cdc)
+  implicit def mapCodec[K,V](implicit kc: Codec[K], vc: Codec[V]) = new MapCodec[K,V]()(kc, vc)
+  implicit def setCodec[K](implicit kc: Codec[K]) = new SetCodec[K]()(kc)
 
   def deriveCodec[T](implicit codec: Lazy[Codec[T]]) = codec.value
 
