@@ -4,7 +4,7 @@ scalaVersion in ThisBuild := "2.12.3"
 lazy val core = (project in file("core")).settings(
   name := "scalapacked",
   version := "0.1",
-/*  organization := "io.findify",
+  organization := "io.findify",
   licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT")),
   publishMavenStyle := true,
   homepage := Some(url("https://github.com/findify/scala-packed")),
@@ -26,7 +26,7 @@ lazy val core = (project in file("core")).settings(
           <name>Roman Grebennikov</name>
           <url>http://www.dfdx.me</url>
         </developer>
-      </developers>),*/
+      </developers>),
   libraryDependencies ++= Seq(
     "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
     "com.chuusai" %% "shapeless" % "2.3.2",
