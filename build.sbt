@@ -1,36 +1,40 @@
-scalaVersion in ThisBuild := "2.12.2"
+scalaVersion in ThisBuild := "2.12.3"
 
-lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
-  resolvers += Resolver.url(
-    "scalameta",
-    url("http://dl.bintray.com/scalameta/maven"))(Resolver.ivyStylePatterns)/*,
-  addCompilerPlugin(
-    "org.scalameta" % "paradise" % "3.0.0-M8" cross CrossVersion.full),
-  scalacOptions += "-Xplugin-require:macroparadise",
-  scalacOptions in (Compile, console) := Seq(), // macroparadise plugin doesn't work in repl yet.
-  sources in (Compile, doc) := Nil // macroparadise doesn't work with scaladoc yet.*/
-)
 
-lazy val macros = (project in file("macros")).settings(
-  name := "scala-packed-macro",
-  metaMacroSettings,
+lazy val core = (project in file("core")).settings(
+  name := "scalapacked",
+  version := "0.1",
+/*  organization := "io.findify",
+  licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT")),
+  publishMavenStyle := true,
+  homepage := Some(url("https://github.com/findify/scala-packed")),
+  publishTo := {
+    val nexus = "https://oss.sonatype.org/"
+    if (isSnapshot.value)
+      Some("snapshots" at nexus + "content/repositories/snapshots")
+    else
+      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+  },
+  pomExtra := (
+    <scm>
+      <url>git@github.com:findify/scala-packed.git</url>
+      <connection>scm:git:git@github.com:findify/scala-packed.git</connection>
+    </scm>
+      <developers>
+        <developer>
+          <id>romangrebennikov</id>
+          <name>Roman Grebennikov</name>
+          <url>http://www.dfdx.me</url>
+        </developer>
+      </developers>),*/
   libraryDependencies ++= Seq(
-    "org.scalameta" %% "scalameta" % "1.8.0",
-    "org.scalatest" %% "scalatest" % "3.0.3",
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
     "com.chuusai" %% "shapeless" % "2.3.2",
-    "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
-    "ch.qos.logback" % "logback-classic" % "1.2.3"
+    "org.scalatest" %% "scalatest" % "3.0.3" % "test"
   )
 )
 
-// Use macros in this project.
-lazy val core = (project in file("core")).settings(
-  name := "scala-packed-core",
-  metaMacroSettings
-).dependsOn(macros)
-
 lazy val benchmark = (project in file("benchmark")).settings(
   name := "scala-packed-benchmark",
-  metaMacroSettings,
   libraryDependencies += "com.github.jbellis" % "jamm" % "0.3.1"
 ).dependsOn(core).enablePlugins(JmhPlugin)
