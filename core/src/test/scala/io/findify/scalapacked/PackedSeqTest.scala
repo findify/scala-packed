@@ -1,6 +1,6 @@
 package io.findify.scalapacked
 
-import io.findify.scalapacked.PackedSeq.StructCanBuildFrom
+import io.findify.scalapacked.PackedSeq.PackedSeqCanBuildFrom
 import io.findify.scalapacked.example.{Foo, FooCodec}
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -12,7 +12,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class PackedSeqTest extends FlatSpec with Matchers {
   implicit val encoder = new FooCodec()
-  val buf = Range(0, 10).map(r => Foo(r, r.toFloat, r.toString)).to[PackedSeq](new StructCanBuildFrom[Foo]())
+  val buf = Range(0, 10).map(r => Foo(r, r.toFloat, r.toString)).to[PackedSeq](new PackedSeqCanBuildFrom[Foo]())
 
   "case class with int" should "convert from normal seq" in {
     buf.size shouldBe 10

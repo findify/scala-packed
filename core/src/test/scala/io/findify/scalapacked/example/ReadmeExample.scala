@@ -14,10 +14,9 @@ class ReadmeExample extends FlatSpec with Matchers {
     import io.findify.scalapacked.codec.generic._
 
     // a sequence of 1k objects
-    val list = (0 to 1000).map(i => HelloPacked(i, i.toLong, i.toString)).to[PackedSeq]
+    val list = PackedSeq((0 to 1000).map(i => HelloPacked(i, i.toLong, i.toString)): _*)
 
     // use it as a typical scala collection
-    list.filter(_.i % 10 == 0)
-
+    list.count(_.i % 10 == 0) shouldBe 101
   }
 }

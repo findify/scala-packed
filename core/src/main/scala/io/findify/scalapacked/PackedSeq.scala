@@ -52,14 +52,13 @@ object PackedSeq {
     }
   }
 
-  class StructCanBuildFrom[A](implicit codec: Codec[A]) extends CanBuildFrom[Any, A, PackedSeq[A]] {
+  class PackedSeqCanBuildFrom[A](implicit codec: Codec[A]) extends CanBuildFrom[Any, A, PackedSeq[A]] {
     def apply = new PackedSeqBuilder[A]()
     def apply(from: Any) = new PackedSeqBuilder[A]()
   }
 
-  def apply[A](item: A, items: A*)(implicit codec: Codec[A]): PackedSeq[A] = {
+  def apply[A](items: A*)(implicit codec: Codec[A]): PackedSeq[A] = {
     val builder = new PackedSeqBuilder[A]()
-    builder += item
     builder ++= items
     builder.result()
   }

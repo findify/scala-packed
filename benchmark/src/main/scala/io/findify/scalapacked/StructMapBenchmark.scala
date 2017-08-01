@@ -3,7 +3,7 @@ package io.findify.scalapacked
 
 import java.util.concurrent.TimeUnit
 
-import io.findify.scalapacked.PackedSeq.StructCanBuildFrom
+import io.findify.scalapacked.PackedSeq.PackedSeqCanBuildFrom
 import io.findify.scalapacked.pool.MemoryPool
 import org.openjdk.jmh.annotations._
 

@@ -1,4 +1,5 @@
 package io.findify.scalapacked
+import io.findify.scalapacked.PackedSeq.PackedSeqCanBuildFrom
 import io.findify.scalapacked.pool.MemoryPool
 import io.findify.scalapacked.types._
 import shapeless.{:+:, ::, CNil, Coproduct, HList, HNil, LabelledTypeClass, LabelledTypeClassCompanion, Lazy}
@@ -13,6 +14,8 @@ object codec {
   implicit def someCodec[T](implicit cdc: Codec[T]) = new OptionCodec.SomeCodec[T]()(cdc)
   implicit def mapCodec[K,V](implicit kc: Codec[K], vc: Codec[V]) = new MapCodec[K,V]()(kc, vc)
   implicit def setCodec[K](implicit kc: Codec[K]) = new SetCodec[K]()(kc)
+
+//  implicit def packedSeqCanBuildFrom[T](implicit codec: Codec[T]) = new PackedSeqCanBuildFrom[T]()(codec)
 
   def deriveCodec[T](implicit codec: Lazy[Codec[T]]) = codec.value
 

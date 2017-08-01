@@ -1,6 +1,6 @@
 package io.findify.scalapacked
 
-import io.findify.scalapacked.PackedSeq.StructCanBuildFrom
+import io.findify.scalapacked.PackedSeq.PackedSeqCanBuildFrom
 import io.findify.scalapacked.example.{Foo, FooCodec}
 import org.scalatest.{FlatSpec, Matchers}
 
