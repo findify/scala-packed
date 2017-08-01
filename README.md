@@ -8,10 +8,11 @@ General idea:
 * use a single shared buffer for all elements in a sequence
 * supports String, Float, Double, Int, Long types
 * supports Option[T], Map[K,V], Seq[T]
+* can do shapeless-based codec auto-derivation for custom case classes  
 * can be extended for custom types
 
 
-### hello world example
+### Hello world example
 
     // A simple case class to pack
     case class HelloPacked(i: Int, l: Long, s: String)
@@ -27,6 +28,35 @@ General idea:
     // use it as a typical scala collection
     list.filter(_.i % 10 == 0)
     
+### More complex example
+
+    // custom type codec
+    implicit val byteCodec = new Codec[Byte] {
+      // read byte from buffer
+      override def read(buffer: MemoryPool, offset: Int): Byte = buffer.readByte(offset)
+      // packed object size in buffer
+      override def size(buffer: MemoryPool, offset: Int): Int = 1
+      // object size
+      override def size(item: Byte): Int = 1
+      // write object to buffer and return it's offset
+      override def write(value: Byte, buffer: MemoryPool): Int = buffer.writeByte(value)
+    }
+    
+    // case class with cutsom type
+    case class NestedFoo(b: Byte)
+    case class RootFoo(n: NestedFoo)
+
+    // codecs for default scala types
+    import io.findify.scalapacked.codec._
+    // shapeless-based codec auto-deriver for case classes
+    import io.findify.scalapacked.codec.generic._
+
+    // build a packed map
+    val map = PackedMap( (0 to 100).map(i => s"key$i" -> RootFoo(NestedFoo(i.toByte))): _*)
+
+    // use it as a regular one
+    map.get("key75")    
+   
     
 ### Performance
 
