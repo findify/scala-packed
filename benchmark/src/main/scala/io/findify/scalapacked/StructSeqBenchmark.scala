@@ -2,9 +2,6 @@ package io.findify.scalapacked
 
 import java.util.concurrent.TimeUnit
 
-import io.findify.scalapacked.PackedSeq.PackedSeqCanBuildFrom
-import io.findify.scalapacked.StructSeqBenchmark.{Intc, Intp}
-import io.findify.scalapacked.pool.MemoryPool
 import org.openjdk.jmh.annotations._
 
 /**
@@ -15,48 +12,36 @@ import org.openjdk.jmh.annotations._
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 class StructSeqBenchmark {
-  var list: List[Intc] = _
-  var array: Array[Int] = _
-  var pseq: PackedSeq[Intp] = _
-
+  var list: Traversable[Int] = _
+  val items = (0 to 1000).toArray
+  @Param(Array("List", "PackedSeq"))
+  var listType: String = _
 
   @Setup
   def setup = {
     import codec._
-    import codec.generic._
-    implicit def cbf = new PackedSeqCanBuildFrom[Intp]()
-    array = (0 to 1000).toArray
-    list = array.map(i => Intc(i)).toList
-    pseq = array.map(i => Intp(i))
-  }
-
-  @Benchmark
-  def measureList = {
-    var counter = 0L
-    list.foreach(item => counter += item.a)
-    counter
-  }
-
-  @Benchmark
-  def measureArray = {
-    var counter = 0L
-    var i = 0
-    while (i < array.length) {
-      counter += array(i)
-      i += 1
+    listType match {
+      case "List" => list = items.toList
+      case "PackedSeq" => list = PackedSeq(items.toList: _*)
     }
+  }
+
+  @Benchmark
+  def foreach = {
+    var counter = 0L
+    list.foreach(item => counter += item)
     counter
   }
 
   @Benchmark
-  def measurePacked = {
-    var counter = 0L
-    pseq.foreach(item => counter += item.a)
-    counter
+  def filter = {
+    list.count(_ % 10 == 0)
   }
+
+  @Benchmark
+  def head = {
+    list.headOption
+  }
+
 }
 
-object StructSeqBenchmark {
-  case class Intp(a:Int)
-  case class Intc(a:Int)
-}

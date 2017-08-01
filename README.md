@@ -82,7 +82,27 @@ RAM usage is 5x-10x lower compared to generic collections of case classes:
     Map[String, ComplexClass]       = 222 byte/item
     PackedMap[String, ComplexClass] = 45 byte/item (20.24% of original)
 
-CPU usage depends on workload, but in general it is 3x-5x slower than scala native collections.
+CPU usage depends on workload, but in general it is 3x-5x slower than scala native collections:
+
+For Map vs PackedMap: 
+
+    Benchmark                             (mapType)  Mode  Cnt       Score      Error  Units
+    PackedMapBenchmark.build1000                Map  avgt   10  117845.527 ± 1101.192  ns/op
+    PackedMapBenchmark.build1000          PackedMap  avgt   10  213333.266 ± 3285.303  ns/op
+    PackedMapBenchmark.lookupExisting           Map  avgt   10      32.682 ±    0.509  ns/op
+    PackedMapBenchmark.lookupExisting     PackedMap  avgt   10      80.360 ±    0.487  ns/op
+    PackedMapBenchmark.lookupNonExisting        Map  avgt   10      25.683 ±    0.309  ns/op
+    PackedMapBenchmark.lookupNonExisting  PackedMap  avgt   10      15.055 ±    0.383  ns/op
+
+For List vs PackedSeq:
+
+    Benchmark                   (listType)  Mode  Cnt     Score     Error  Units
+    PackedSeqBenchmark.filter         List  avgt   10  4014.360 ±  49.048  ns/op
+    PackedSeqBenchmark.filter    PackedSeq  avgt   10  8465.392 ± 117.966  ns/op
+    PackedSeqBenchmark.foreach        List  avgt   10  2250.216 ±  10.079  ns/op
+    PackedSeqBenchmark.foreach   PackedSeq  avgt   10  5346.679 ±  35.374  ns/op
+    PackedSeqBenchmark.head           List  avgt   10     4.213 ±   0.060  ns/op
+    PackedSeqBenchmark.head      PackedSeq  avgt   10   211.507 ±   1.748  ns/op
 
 ## Licence
 

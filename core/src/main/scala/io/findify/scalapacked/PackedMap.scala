@@ -58,16 +58,16 @@ object PackedMap extends ImmutableMapFactory[PackedMap] {
   }
 
   class PackedMapBuilder[A,B](implicit kc: Codec[A], vc: Codec[B]) extends mutable.Builder[(A,B), PackedMap[A,B]] {
-    private var map = new PackedMap[A,B](PackedMapImpl()(kc, vc))
+    private var map = PackedMapImpl()(kc, vc)
     override def +=(elem: (A, B)) = {
-      map.map.put(elem._1, elem._2)
+      map.put(elem._1, elem._2)
       this
     }
     override def clear(): Unit = {
-      map = PackedMap[A,B]()
+      map = PackedMapImpl()(kc, vc)
     }
     override def result(): PackedMap[A,B] = {
-      map
+      new PackedMap[A,B](map)
     }
 
   }
