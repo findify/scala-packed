@@ -7,6 +7,7 @@ lazy val core = (project in file("core")).settings(
   organization := "io.findify",
   licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT")),
   publishMavenStyle := true,
+  sonatypeProfileName := "io.findify",
   homepage := Some(url("https://github.com/findify/scala-packed")),
   publishTo := {
     val nexus = "https://oss.sonatype.org/"
