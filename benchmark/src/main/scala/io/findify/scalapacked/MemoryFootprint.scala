@@ -25,7 +25,7 @@ object MemoryFootprint {
     measure("list of strings", listStrings, listPackedStrings)
 
     val mapStrings = (0 to count).map(i => i.toString -> (i + 1).toString).toMap
-    val mapPackedStrings = PackedMap(mapStrings.toList: _*)
+    val mapPackedStrings = PackedMap(mapStrings.toList: _*).compact
     measure("map of strings", mapStrings, mapPackedStrings)
 
     import codec.generic._

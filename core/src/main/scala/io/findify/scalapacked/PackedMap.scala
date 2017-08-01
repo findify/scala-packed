@@ -10,8 +10,8 @@ import scala.collection.generic.{CanBuildFrom, ImmutableMapFactory, MutableMapFa
 import scala.collection.mutable
 
 
-class PackedMap[A, B](val map: PackedMapImpl[A,B])(implicit kc: Codec[A], vc: Codec[B])
-  extends scala.collection.mutable.Map[A, B] with scala.collection.mutable.MapLike[A, B, PackedMap[A, B]] {
+class PackedMap[A, +B](val map: PackedMapImpl[A,B])(implicit kc: Codec[A], vc: Codec[B])
+  extends scala.collection.immutable.Map[A, B] with scala.collection.immutable.MapLike[A, B, PackedMap[A, B]] {
 
   override def size: Int = map.count
   override def empty: PackedMap[A, B] = PackedMap.empty
@@ -20,18 +20,16 @@ class PackedMap[A, B](val map: PackedMapImpl[A,B])(implicit kc: Codec[A], vc: Co
   override def get(key: A): Option[B] = {
     map.get(key)
   }
-  override def +=(kv: (A, B)): PackedMap.this.type = {
-    map.put(kv._1, kv._2)
-    this
+  override def +[V1 >: B](kv: (A, V1)): PackedMap.this.type = {
+    ???
   }
-  override def -=(key: A): PackedMap.this.type = ???
 
   def compact: PackedMap[A, B] = {
     new PackedMap(map.compact)
   }
 }
 
-object PackedMap extends MutableMapFactory[PackedMap] {
+object PackedMap extends ImmutableMapFactory[PackedMap] {
 
   class StructMapIterator[A,B](parent: PackedMap[A,B])(implicit kc: Codec[A], vc: Codec[B]) extends Iterator[(A,B)] {
     private var position = 0
@@ -60,9 +58,9 @@ object PackedMap extends MutableMapFactory[PackedMap] {
   }
 
   class PackedMapBuilder[A,B](implicit kc: Codec[A], vc: Codec[B]) extends mutable.Builder[(A,B), PackedMap[A,B]] {
-    private var map = new PackedMap[A,B](PackedMapImpl())
+    private var map = new PackedMap[A,B](PackedMapImpl()(kc, vc))
     override def +=(elem: (A, B)) = {
-      map += elem
+      map.map.put(elem._1, elem._2)
       this
     }
     override def clear(): Unit = {

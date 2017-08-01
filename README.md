@@ -68,7 +68,19 @@ General idea:
     
 ### Performance
 
-RAM usage is 5x-10x lower compared to generic collections of case classes.
+RAM usage is 5x-10x lower compared to generic collections of case classes:
+
+    List[Int]         = 40 byte/item
+    PackedList[Int]   = 4  byte/item (10.02% of original)
+    
+    List[String]      = 72 byte/item
+    PackedSeq[String] = 7  byte/item (10.97% of original)
+    
+    Map[String,String]              = 167 byte/item
+    PackedMap[String,String]        = 29 byte/item (17.38% of original)
+
+    Map[String, ComplexClass]       = 222 byte/item
+    PackedMap[String, ComplexClass] = 45 byte/item (20.24% of original)
 
 CPU usage depends on workload, but in general it is 3x-5x slower than scala native collections.
 

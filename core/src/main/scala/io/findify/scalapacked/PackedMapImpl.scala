@@ -6,7 +6,7 @@ import com.typesafe.scalalogging.LazyLogging
 import io.findify.scalapacked.pool.{HeapPool, MemoryPool}
 import io.findify.scalapacked.types.Codec
 
-class PackedMapImpl[A, B]
+class PackedMapImpl[A, +B]
 (
   var bucketCount: Int,
   var pool: MemoryPool,
@@ -23,10 +23,10 @@ class PackedMapImpl[A, B]
     i
   }
 
-  def put(key: A, value: B): Unit = {
+  def put[T >: B](key: A, value: T): Unit = {
     if (count > (bucketCount / 2)) rebuild
     val offset = kc.write(key, pool)
-    vc.write(value, pool)
+    vc.write(value.asInstanceOf[B], pool)
     //logger.debug(s"put: k=$key, v=$value, offset=$offset, size=${pool.size}")
 
     val bucket = findBucket(key)

@@ -15,24 +15,25 @@ import scala.util.Random
 class StructMapBenchmark {
 
   var map: Map[Int, String] = _
-  var smap: PackedMap[Int, String] = _
+
+  @Param(Array("Map", "PackedMap"))
+  val mapType: String = null
+
   @Setup
   def setup = {
     import codec._
     val items = (0 to 1000).map(i => i -> s"v$i")
+    mapType match {
+      case "Map" => map = Map(items: _*)
+      case "PackedMap" => map = PackedMap(items: _*)
+    }
     map = Map(items: _*)
-    smap = PackedMap(items: _*)
   }
 
   @Benchmark
-  def measureMap = {
+  def measureLookup = {
     val index = Random.nextInt(1000)
     map.get(index)
   }
 
-  @Benchmark
-  def measureStructMap = {
-    val index = Random.nextInt(1000)
-    smap.get(index)
-  }
 }
