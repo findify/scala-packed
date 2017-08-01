@@ -2,7 +2,7 @@ package io.findify.scalapacked
 
 import java.util.concurrent.TimeUnit
 
-import io.findify.scalapacked.StructSeq.StructCanBuildFrom
+import io.findify.scalapacked.PackedSeq.StructCanBuildFrom
 import io.findify.scalapacked.pool.MemoryPool
 import org.openjdk.jmh.annotations._
 
@@ -19,7 +19,7 @@ case class Intc(a:Int)
 class StructSeqBenchmark {
   var list: List[Intc] = _
   var array: Array[Int] = _
-  var pseq: StructSeq[Intp] = _
+  var pseq: PackedSeq[Intp] = _
 
 
   @Setup

@@ -2,7 +2,7 @@ package io.findify.scalapacked
 
 import java.util
 
-import io.findify.scalapacked.StructMap.StructMapIterator
+import io.findify.scalapacked.PackedMap.StructMapIterator
 import io.findify.scalapacked.pool.{HeapPool, MemoryPool}
 import io.findify.scalapacked.types.Codec
 
@@ -10,27 +10,27 @@ import scala.collection.generic.{CanBuildFrom, ImmutableMapFactory, MutableMapFa
 import scala.collection.mutable
 
 
-class StructMap[A, B](pool: MemoryPool = new HeapPool(20))(implicit kc: Codec[A], vc: Codec[B])
-  extends scala.collection.mutable.Map[A, B] with scala.collection.mutable.MapLike[A, B, StructMap[A, B]] {
-  val map = new StructMapImpl[A,B](16)
+class PackedMap[A, B](pool: MemoryPool = new HeapPool(20))(implicit kc: Codec[A], vc: Codec[B])
+  extends scala.collection.mutable.Map[A, B] with scala.collection.mutable.MapLike[A, B, PackedMap[A, B]] {
+  val map = new PackedMapImpl[A,B](16)
 
   override def size: Int = map.count
-  override def empty: StructMap[A, B] = StructMap.empty
+  override def empty: PackedMap[A, B] = PackedMap.empty
   override def iterator: Iterator[(A, B)] = new StructMapIterator(this)
-  override def -(key: A): StructMap[A, B] = ???
+  override def -(key: A): PackedMap[A, B] = ???
   override def get(key: A): Option[B] = {
     map.get(key)
   }
-  override def +=(kv: (A, B)): StructMap.this.type = {
+  override def +=(kv: (A, B)): PackedMap.this.type = {
     map.put(kv._1, kv._2)
     this
   }
-  override def -=(key: A): StructMap.this.type = ???
+  override def -=(key: A): PackedMap.this.type = ???
 }
 
-object StructMap extends MutableMapFactory[StructMap] {
+object PackedMap extends MutableMapFactory[PackedMap] {
 
-  class StructMapIterator[A,B](parent: StructMap[A,B])(implicit kc: Codec[A], vc: Codec[B]) extends Iterator[(A,B)] {
+  class StructMapIterator[A,B](parent: PackedMap[A,B])(implicit kc: Codec[A], vc: Codec[B]) extends Iterator[(A,B)] {
     private var position = 0
     private val positions = {
       val pos = new Array[Int](parent.map.bucketCount)
@@ -56,39 +56,39 @@ object StructMap extends MutableMapFactory[StructMap] {
     }
   }
 
-  class StructMapBuilder[A,B](implicit kc: Codec[A], vc: Codec[B]) extends mutable.Builder[(A,B), StructMap[A,B]] {
-    private var map = new StructMap[A,B]()
+  class PackedMapBuilder[A,B](implicit kc: Codec[A], vc: Codec[B]) extends mutable.Builder[(A,B), PackedMap[A,B]] {
+    private var map = new PackedMap[A,B]()
     override def +=(elem: (A, B)) = {
       map += elem
       this
     }
     override def clear(): Unit = {
-      map = new StructMap[A,B]()
+      map = new PackedMap[A,B]()
     }
-    override def result(): StructMap[A,B] = {
+    override def result(): PackedMap[A,B] = {
       map
     }
 
   }
 
 
-  override def empty[A, B]: StructMap[A, B] = {
+  override def empty[A, B]: PackedMap[A, B] = {
     ???
   }
 
-  override def newBuilder[A, B]: mutable.Builder[(A, B), StructMap[A, B]] = {
+  override def newBuilder[A, B]: mutable.Builder[(A, B), PackedMap[A, B]] = {
     ???
   }
 
-  def newStructBuilder[A, B](implicit kc: Codec[A], vc: Codec[B]): mutable.Builder[(A, B), StructMap[A, B]] = new StructMapBuilder[A,B]()
-  implicit def canBuildFrom[A, B](implicit kc: Codec[A], vc: Codec[B]): CanBuildFrom[Coll, (A, B), StructMap[A, B]] = new StructMapCanBuildFrom[A, B]
+  def newStructBuilder[A, B](implicit kc: Codec[A], vc: Codec[B]): mutable.Builder[(A, B), PackedMap[A, B]] = new PackedMapBuilder[A,B]()
+  implicit def canBuildFrom[A, B](implicit kc: Codec[A], vc: Codec[B]): CanBuildFrom[Coll, (A, B), PackedMap[A, B]] = new PackedMapCanBuildFrom[A, B]
 
-  class StructMapCanBuildFrom[A, B](implicit kc: Codec[A], vc: Codec[B]) extends CanBuildFrom[Coll, (A,B), StructMap[A,B]] {
+  class PackedMapCanBuildFrom[A, B](implicit kc: Codec[A], vc: Codec[B]) extends CanBuildFrom[Coll, (A,B), PackedMap[A,B]] {
     def apply(from: Coll) = newStructBuilder[A, B]
     def apply() = newStructBuilder[A,B]
   }
 
-  def apply[A,B](pairs: (A, B)*)(implicit kc: Codec[A], vc: Codec[B]): StructMap[A,B] = {
+  def apply[A,B](pairs: (A, B)*)(implicit kc: Codec[A], vc: Codec[B]): PackedMap[A,B] = {
     val builder = newStructBuilder[A,B]
     builder ++= pairs
     builder.result()

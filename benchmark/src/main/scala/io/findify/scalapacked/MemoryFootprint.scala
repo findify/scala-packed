@@ -1,6 +1,6 @@
 package io.findify.scalapacked
 
-import io.findify.scalapacked.StructSeq.StructCanBuildFrom
+import io.findify.scalapacked.PackedSeq.StructCanBuildFrom
 import io.findify.scalapacked.pool.MemoryPool
 import org.github.jamm.MemoryMeter
 

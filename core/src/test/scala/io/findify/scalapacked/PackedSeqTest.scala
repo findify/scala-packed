@@ -1,31 +1,38 @@
 package io.findify.scalapacked
 
+import io.findify.scalapacked.PackedSeq.StructCanBuildFrom
+import io.findify.scalapacked.example.{Foo, FooCodec}
 import org.scalatest.{FlatSpec, Matchers}
 
+
 /**
-  * Created by shutty on 11/22/16.
+  * Created by shutty on 11/19/16.
   */
 
 
-/*@Packed class One(a:Int, b:Long, s:String)
-@Packed class Two(a:Int)
-
 class PackedSeqTest extends FlatSpec with Matchers {
-  val seq = List(One(1,1,"1"), One(2,2,"2"))
-  val packed = PackedSeq[One](seq)
+  implicit val encoder = new FooCodec()
+  val buf = Range(0, 10).map(r => Foo(r, r.toFloat, r.toString)).to[PackedSeq](new StructCanBuildFrom[Foo]())
 
-  "packed seq" should "be buildable from normal seqs" in {
-    packed.byteSize shouldBe 34
+  "case class with int" should "convert from normal seq" in {
+    buf.size shouldBe 10
+    buf.head shouldBe Foo(0, 0.0f, "0")
+    buf.last shouldBe Foo(9, 9.0f, "9")
+    buf.map(_.i1).sum shouldBe 45
+    buf.map(_.s).mkString shouldBe "0123456789"
   }
 
-  it should "have map method" in {
-    val transformed = packed.map(x => One(x.a * 2, x.b * 2, x.s + "1"))
-    transformed.byteSize shouldBe 36
+  it should "construct seq from element vararg" in {
+    val buf2 = PackedSeq(Foo(111, 111.0f, "xxx"))
+    buf2.head.i1 shouldBe 111
+    val buf2a = PackedSeq(Foo(111, 111.0f, "xxx"), Foo(222, 222.0f, "yyy"))
+    buf2a.size shouldBe 2
   }
 
-  it should "transform one class to another" in {
-    val transformed = packed.map(x => Two(x.a * 3))
-    transformed.byteSize shouldBe 8
+  it should "append elements to list" in {
+    val buf2 = PackedSeq(Foo(111, 111.0f, "xxx"))
+    val buf3 = buf ++ buf2
+    buf3.size shouldBe 11
   }
+
 }
-*/

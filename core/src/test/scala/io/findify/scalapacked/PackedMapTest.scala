@@ -1,13 +1,13 @@
 package io.findify.scalapacked
 
-import io.findify.scalapacked.StructSeq.StructCanBuildFrom
+import io.findify.scalapacked.PackedSeq.StructCanBuildFrom
 import io.findify.scalapacked.example.{Foo, FooCodec}
 import org.scalatest.{FlatSpec, Matchers}
 
-class StructMapTest extends FlatSpec with Matchers {
+class PackedMapTest extends FlatSpec with Matchers {
   implicit val foocodec = new FooCodec()
   import codec._
-  val map = StructMap("x" -> Foo(1, 1.0f, "x"))
+  val map = PackedMap("x" -> Foo(1, 1.0f, "x"))
 
 
   "map" should "have size" in {
