@@ -4,6 +4,8 @@ import io.findify.scalapacked.PackedSeq.PackedSeqCanBuildFrom
 import io.findify.scalapacked.pool.MemoryPool
 import org.github.jamm.MemoryMeter
 
+import scala.util.Random
+
 /**
   * Created by shutty on 11/22/16.
   */
@@ -29,8 +31,10 @@ object MemoryFootprint {
     import codec.generic._
     case class NestedFoo(x: String)
     case class ComplexFoo(i: Int, s: String, n: NestedFoo)
-    val mapCase = (0 to count).map(i => i -> ComplexFoo(i, i.toString, NestedFoo((i + 1).toString))).toMap
-    val mapPackedCase = PackedMap(mapCase.toList: _*)
+    val mapCase = (0 to count).map(i => Random.nextInt() -> ComplexFoo(i, i.toString, NestedFoo((i + 1).toString))).toMap
+    val mapPackedCase = PackedMap(mapCase.toList: _*).compact
+    val cdc = deriveCodec[ComplexFoo]
+    println(s"obj size = ${cdc.size(mapPackedCase.head._2)}")
     measure("map of case classes", mapCase, mapPackedCase)
   }
 

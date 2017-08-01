@@ -5,13 +5,13 @@ import org.scalatest.{FlatSpec, Matchers}
 class PackedMapImplTest extends FlatSpec with Matchers {
   import codec._
   "map" should "add elements" in {
-    val map = new PackedMapImpl[String,String](1024)
+    val map = PackedMapImpl[String,String](1024)
     map.put("foo", "bar")
     map.get("foo") shouldBe Some("bar")
   }
 
   it should "deal with collisions" in {
-    val map = new PackedMapImpl[String,String](1024)
+    val map = PackedMapImpl[String,String](1024)
     Range(1,512).foreach(i => map.put(i.toString, i.toString))
     val results = Range(1,512).map(i => map.get(i.toString).get)
     results.size shouldBe 511
@@ -19,7 +19,7 @@ class PackedMapImplTest extends FlatSpec with Matchers {
   }
 
   it should "rebuild on full" in {
-    val map = new PackedMapImpl[String,String](8)
+    val map = PackedMapImpl[String,String](8)
     Range(1,512).foreach(i => map.put(i.toString, i.toString))
     val results = Range(1,512).map(i => map.get(i.toString).get)
     results.size shouldBe 511

@@ -6,10 +6,14 @@ import com.typesafe.scalalogging.LazyLogging
 import io.findify.scalapacked.pool.{HeapPool, MemoryPool}
 import io.findify.scalapacked.types.Codec
 
-class PackedMapImpl[A, B](var bucketCount: Int, var pool: MemoryPool = new HeapPool(1024))(implicit kc: Codec[A], vc: Codec[B]) extends LazyLogging {
-  var buckets = new Array[Int](bucketCount)
-  var usedBuckets = new util.BitSet(bucketCount)
-  var count = 0
+class PackedMapImpl[A, B]
+(
+  var bucketCount: Int,
+  var pool: MemoryPool,
+  var buckets: Array[Int],
+  var usedBuckets: util.BitSet,
+  var count: Int
+)(implicit kc: Codec[A], vc: Codec[B]) extends LazyLogging {
 
   private def findBucket(key: A): Int = {
     var i = math.abs(key.hashCode() % bucketCount)
@@ -46,7 +50,7 @@ class PackedMapImpl[A, B](var bucketCount: Int, var pool: MemoryPool = new HeapP
   }
 
   def rebuild = {
-    val larger = new PackedMapImpl[A,B](bucketCount * 2)
+    val larger = PackedMapImpl[A,B](bucketCount * 2)
     //logger.debug(s"rebuild: size = ${larger.bucketCount}")
     var i = 0
     while (i < bucketCount) {
@@ -65,5 +69,27 @@ class PackedMapImpl[A, B](var bucketCount: Int, var pool: MemoryPool = new HeapP
     count = larger.count
     pool = larger.pool
     //logger.debug("rebuild done")
+  }
+
+  def compact: PackedMapImpl[A, B] = {
+    new PackedMapImpl[A, B](
+      bucketCount  = bucketCount,
+      pool = pool.compact(),
+      buckets = buckets,
+      usedBuckets = usedBuckets,
+      count = count
+    )
+  }
+}
+
+object PackedMapImpl {
+  def apply[A, B](bucketCount: Int = 16, poolSize: Int = 32)(implicit kc: Codec[A], vc: Codec[B]): PackedMapImpl[A, B] = {
+    new PackedMapImpl[A, B](
+      bucketCount = bucketCount,
+      pool = new HeapPool(poolSize),
+      buckets = new Array[Int](bucketCount),
+      usedBuckets = new util.BitSet(bucketCount),
+      count = 0
+    )
   }
 }
