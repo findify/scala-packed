@@ -4,15 +4,20 @@ import io.findify.scalapacked.types.{Codec, OptionCodec, StringCodec}
 import org.scalatest.{FlatSpec, Matchers}
 
 class OptionCodecTest extends FlatSpec with Matchers with CodecTest {
-  implicit val stringCodec: Codec[String] = StringCodec
-  implicit val noneCodec = OptionCodec.NoneCodec
-  implicit def someCodec[T](implicit cdc: Codec[T]) = new OptionCodec.SomeCodec[T]()(cdc)
 
+  import io.findify.scalapacked.codec._
+  import io.findify.scalapacked.codec.generic._
   "option codec" should "roundtrip for None" in {
-    roundtrip(None) shouldBe None
+    val x: Option[String] = None
+    roundtrip(x) shouldBe None
   }
 
   it should "work with Option[String]" in {
-    roundtrip(Some("foo")) shouldBe Some("foo")
+    val x: Option[String] = Some("foo")
+    roundtrip(x) shouldBe Some("foo")
+  }
+
+  it should "work with contravariant types" in {
+    roundtrip(None) shouldBe None
   }
 }
