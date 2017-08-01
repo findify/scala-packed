@@ -3,7 +3,7 @@ scalaVersion in ThisBuild := "2.12.3"
 
 lazy val core = (project in file("core")).settings(
   name := "scalapacked",
-  version := "0.1",
+  version := "0.1.1",
   organization := "io.findify",
   licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT")),
   publishMavenStyle := true,

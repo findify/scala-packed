@@ -19,7 +19,9 @@ class SetCodec[K](implicit kc: Codec[K]) extends Codec[scala.collection.immutabl
     }
     buf.toSet
   }
-  override def size(buffer: MemoryPool, offset: Int): Int = buffer.readInt(offset)
+  override def size(buffer: MemoryPool, offset: Int): Int = {
+    buffer.readInt(offset)
+  }
   override def size(item: Set[K]): Int = {
     var bytes = 8
     item.foreach(k => {
@@ -36,7 +38,8 @@ class SetCodec[K](implicit kc: Codec[K]) extends Codec[scala.collection.immutabl
       kc.write(key, buffer)
       count += 1
     })
-    buffer.writeInt(count, start)
+    val written = buffer.size - start
+    buffer.writeInt(written, start)
     start
   }
 

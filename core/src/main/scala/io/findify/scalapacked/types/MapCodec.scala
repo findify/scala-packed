@@ -39,7 +39,7 @@ class MapCodec[K, V](implicit kc: Codec[K], vc: Codec[V]) extends Codec[scala.co
       vc.write(kv._2, buffer)
     })
     val written = buffer.size - start
-    buffer.writeInt(written, 0)
+    buffer.writeInt(written, start)
     start
   }
 

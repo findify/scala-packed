@@ -10,4 +10,8 @@ class SetCodecTest extends FlatSpec with Matchers with CodecTest {
   "set codec" should "work with simple sets" in {
     roundtrip(Set("foo", "bar")) shouldBe Set("foo", "bar")
   }
+
+  it should "check for inclusion" in {
+    roundtrip(Set("foo", "bar", "baz")).contains("bar") shouldBe true
+  }
 }
