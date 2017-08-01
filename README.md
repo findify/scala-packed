@@ -14,6 +14,9 @@ General idea:
 
 ### Hello world example
 
+```scala
+    import io.findify.scalapacked.PackedSeq
+
     // A simple case class to pack
     case class HelloPacked(i: Int, l: Long, s: String)
     
@@ -27,9 +30,14 @@ General idea:
     
     // use it as a typical scala collection
     list.filter(_.i % 10 == 0)
-    
+```
 ### More complex example
 
+```scala
+    import io.findify.scalapacked.pool.MemoryPool
+    import io.findify.scalapacked.types.Codec
+    import io.findify.scalapacked.PackedMap
+    
     // custom type codec
     implicit val byteCodec = new Codec[Byte] {
       // read byte from buffer
@@ -56,7 +64,7 @@ General idea:
 
     // use it as a regular one
     map.get("key75")    
-   
+```   
     
 ### Performance
 
