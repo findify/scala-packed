@@ -20,5 +20,5 @@ object EmptyPool extends MemoryPool {
   override def writeDouble(value: Double): Int = fail
   override def readDouble(offset: Int): Double = fail
   override def copy(other: MemoryPool): Unit = fail
-
+  override def compact(): MemoryPool = ???
 }

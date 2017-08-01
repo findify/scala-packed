@@ -32,6 +32,10 @@ class PackedSeq[A](pool: MemoryPool = new HeapPool(20))(implicit codec: Codec[A]
     }
     count
   }
+
+  def compact: PackedSeq[A] = {
+    new PackedSeq(pool.compact())
+  }
 }
 
 object PackedSeq {

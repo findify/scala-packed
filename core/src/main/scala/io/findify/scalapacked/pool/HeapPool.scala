@@ -1,17 +1,15 @@
 package io.findify.scalapacked.pool
 
 import java.nio.ByteBuffer
+import java.util
 
 /**
   * Created by shutty on 1/22/17.
   */
-class HeapPool(preallocate: Int = 1024, growthFactor: Float = 1.5f) extends MemoryPool {
-  private var bufferLength = 0
-  var buffer = new Array[Byte](preallocate)
-
+class HeapPool(growthFactor: Float = 1.5f, var buffer: Array[Byte] = new Array[Byte](1024), var bufferBytesUsed: Int = 0) extends MemoryPool {
   override def capacity = buffer.length
 
-  override def size = bufferLength
+  override def size = bufferBytesUsed
 
   override def copy(other: MemoryPool) = {
     grow(other.size)
@@ -20,16 +18,16 @@ class HeapPool(preallocate: Int = 1024, growthFactor: Float = 1.5f) extends Memo
       buffer(size + i) = other.readByte(i)
       i += 1
     }
-    bufferLength += other.size
+    bufferBytesUsed += other.size
   }
 
   override def readByte(position: Int) = buffer(position)
 
   override def writeByte(byte: Byte): Int = {
     grow(1)
-    val offset = bufferLength
-    buffer(bufferLength) = byte
-    bufferLength += 1
+    val offset = bufferBytesUsed
+    buffer(bufferBytesUsed) = byte
+    bufferBytesUsed += 1
     offset
   }
 
@@ -37,11 +35,11 @@ class HeapPool(preallocate: Int = 1024, growthFactor: Float = 1.5f) extends Memo
     grow(bytes.length)
     var i = 0
     while (i < bytes.length) {
-      buffer(bufferLength + i) = bytes(i)
+      buffer(bufferBytesUsed + i) = bytes(i)
       i += 1
     }
-    val offset = bufferLength
-    bufferLength += bytes.length
+    val offset = bufferBytesUsed
+    bufferBytesUsed += bytes.length
     offset
   }
   override def readBytes(offset: Int, length: Int): Array[Byte] = {
@@ -56,12 +54,12 @@ class HeapPool(preallocate: Int = 1024, growthFactor: Float = 1.5f) extends Memo
   }
   override def writeInt(value: Int) = {
     grow(4)
-    val offset = bufferLength
-    buffer(bufferLength) = (value >> 24).toByte
-    buffer(bufferLength + 1) = (value >> 16).toByte
-    buffer(bufferLength + 2) = (value >> 8).toByte
-    buffer(bufferLength + 3) = value.toByte
-    bufferLength += 4
+    val offset = bufferBytesUsed
+    buffer(bufferBytesUsed) = (value >> 24).toByte
+    buffer(bufferBytesUsed + 1) = (value >> 16).toByte
+    buffer(bufferBytesUsed + 2) = (value >> 8).toByte
+    buffer(bufferBytesUsed + 3) = value.toByte
+    bufferBytesUsed += 4
     offset
   }
   def writeInt(value: Int, offset: Int): Int = {
@@ -88,16 +86,16 @@ class HeapPool(preallocate: Int = 1024, growthFactor: Float = 1.5f) extends Memo
 
   override def writeLong(value: Long) = {
     grow(8)
-    val offset = bufferLength
-    buffer(bufferLength + 0) = (value >> 56).toByte
-    buffer(bufferLength + 1) = (value >> 48).toByte
-    buffer(bufferLength + 2) = (value >> 40).toByte
-    buffer(bufferLength + 3) = (value >> 32).toByte
-    buffer(bufferLength + 4) = (value >> 24).toByte
-    buffer(bufferLength + 5) = (value >> 16).toByte
-    buffer(bufferLength + 6) = (value >> 8).toByte
-    buffer(bufferLength + 7) = value.toByte
-    bufferLength += 8
+    val offset = bufferBytesUsed
+    buffer(bufferBytesUsed + 0) = (value >> 56).toByte
+    buffer(bufferBytesUsed + 1) = (value >> 48).toByte
+    buffer(bufferBytesUsed + 2) = (value >> 40).toByte
+    buffer(bufferBytesUsed + 3) = (value >> 32).toByte
+    buffer(bufferBytesUsed + 4) = (value >> 24).toByte
+    buffer(bufferBytesUsed + 5) = (value >> 16).toByte
+    buffer(bufferBytesUsed + 6) = (value >> 8).toByte
+    buffer(bufferBytesUsed + 7) = value.toByte
+    bufferBytesUsed += 8
     offset
   }
 
@@ -118,14 +116,20 @@ class HeapPool(preallocate: Int = 1024, growthFactor: Float = 1.5f) extends Memo
 
   override def readDouble(offset: Int) = java.lang.Double.longBitsToDouble(readLong(offset))
 
-  private def grow(bytesToAdd: Int) = if (bytesToAdd > (buffer.length - bufferLength)) {
-    val capacity = math.round(buffer.length * growthFactor)
-    val grown = new Array[Byte](capacity)
-    var i = 0
-    while (i < bufferLength) {
-      grown(i) = buffer(i)
-      i += 1
-    }
+  private def grow(bytesToAdd: Int) = if (bytesToAdd > (capacity - size)) {
+    val newCapacity = math.round(buffer.length * growthFactor)
+    val grown = util.Arrays.copyOf(buffer, newCapacity)
     buffer = grown
   }
+
+  override def compact(): MemoryPool = {
+    val other = util.Arrays.copyOf(buffer, size)
+    new HeapPool(buffer = other, bufferBytesUsed = bufferBytesUsed)
+  }
+}
+
+object HeapPool {
+  def apply(preallocate: Int = 1024): HeapPool = new HeapPool(
+    buffer = new Array[Byte](preallocate)
+  )
 }

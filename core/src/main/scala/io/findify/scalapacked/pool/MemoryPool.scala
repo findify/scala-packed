@@ -20,4 +20,5 @@ trait MemoryPool {
   def writeDouble(value: Double): Int
   def readDouble(offset: Int): Double
   def copy(other: MemoryPool): Unit
+  def compact(): MemoryPool
 }
