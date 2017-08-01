@@ -14,6 +14,8 @@ object codec {
   implicit def someCodec[T](implicit cdc: Codec[T]) = new OptionCodec.SomeCodec[T]()(cdc)
   implicit def mapCodec[K,V](implicit kc: Codec[K], vc: Codec[V]) = new MapCodec[K,V]()(kc, vc)
   implicit def setCodec[K](implicit kc: Codec[K]) = new SetCodec[K]()(kc)
+  implicit def seqCodec[T](implicit cdc: Codec[T]) = new SeqCodec[T]()(cdc)
+  implicit def listCodec[T](implicit cdc: Codec[T]) = new ListCodec[T]()(cdc)
 
 //  implicit def packedSeqCanBuildFrom[T](implicit codec: Codec[T]) = new PackedSeqCanBuildFrom[T]()(codec)
 
@@ -33,7 +35,7 @@ object codec {
         override def read(buffer: MemoryPool, offset: Int): ::[H, T] = {
           val headSize = ch.size(buffer, offset)
           val head = ch.read(buffer, offset)
-          val tailSize = ct.size(buffer, offset + headSize)
+          //val tailSize = ct.size(buffer, offset + headSize)
           val tail = ct.read(buffer, offset + headSize)
           head :: tail
         }
