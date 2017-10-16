@@ -3,8 +3,7 @@ package io.findify.scalapacked
 
 import java.util.concurrent.TimeUnit
 
-import io.findify.scalapacked.PackedVector.PackedSeqCanBuildFrom
-import io.findify.scalapacked.pool.MemoryPool
+import io.findify.scalapacked.immutable.PackedMap
 import org.openjdk.jmh.annotations._
 
 import scala.util.Random

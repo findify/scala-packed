@@ -1,8 +1,6 @@
 package io.findify.scalapacked
 
-import io.findify.scalapacked.PackedVector.PackedSeqCanBuildFrom
-import io.findify.scalapacked.immutable.PackedVector
-import io.findify.scalapacked.pool.MemoryPool
+import io.findify.scalapacked.immutable.{PackedMap, PackedVector}
 import org.github.jamm.MemoryMeter
 
 import scala.util.Random

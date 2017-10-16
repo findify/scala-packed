@@ -2,6 +2,7 @@ package io.findify.scalapacked
 
 import java.util.concurrent.TimeUnit
 
+import io.findify.scalapacked.immutable.PackedVector
 import org.openjdk.jmh.annotations._
 
 /**
