@@ -83,6 +83,9 @@ object PackedMap extends ImmutableMapFactory[PackedMap] {
 
   def newStructBuilder[A, B](implicit kc: Codec[A], vc: Codec[B]): mutable.Builder[(A, B), PackedMap[A, B]] = new PackedMapBuilder[A,B]()
   implicit def canBuildFrom[A, B](implicit kc: Codec[A], vc: Codec[B]): CanBuildFrom[Coll, (A, B), PackedMap[A, B]] = new PackedMapCanBuildFrom[A, B]
+  implicit class seqToMap[A,B](seq: Seq[(A,B)]) {
+    def toPackedMap(implicit kc: Codec[A], vc: Codec[B]) = PackedMap(seq: _*)
+  }
 
   class PackedMapCanBuildFrom[A, B](implicit kc: Codec[A], vc: Codec[B]) extends CanBuildFrom[Coll, (A,B), PackedMap[A,B]] {
     def apply(from: Coll) = newStructBuilder[A, B]
@@ -101,10 +104,4 @@ object PackedMap extends ImmutableMapFactory[PackedMap] {
     )
   }
 
-/*  def apply[A, B](pair: (A, B), pairs: (A,B)*)(implicit kc: Codec[A], vc: Codec[B]): StructMap[A,B] = {
-    val builder = newStructBuilder[A,B]
-    builder += pair
-    builder ++= pairs
-    builder.result()
-  }*/
 }

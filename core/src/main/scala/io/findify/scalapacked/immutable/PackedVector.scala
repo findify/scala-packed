@@ -62,6 +62,8 @@ object PackedVector {
     def apply(from: Any) = new PackedVectorBuilder[A]()
   }
 
+  implicit def canBuildFrom[A](implicit codec: Codec[A]) = new PackedSeqCanBuildFrom[A]()
+
   def apply[A](items: A*)(implicit codec: Codec[A]): PackedVector[A] = {
     val builder = new PackedVectorBuilder[A]()
     builder ++= items

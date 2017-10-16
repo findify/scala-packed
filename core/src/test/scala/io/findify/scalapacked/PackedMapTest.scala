@@ -22,4 +22,11 @@ class PackedMapTest extends FlatSpec with Matchers {
     map.get("x") shouldBe Some(Foo(1, 1.0f, "x"))
     map.get("y") shouldBe None
   }
+
+  it should "construct PackedMap via cbf" in {
+    import PackedMap._
+    val a = List("x" -> Foo(1, 1f, "x"))
+    val b = a.toPackedMap
+    b.contains("x") shouldBe true
+  }
 }

@@ -44,4 +44,11 @@ class PackedVectorTest extends FlatSpec with Matchers {
     a.size shouldBe 1
   }
 
+  it should "make cbf-based collection transformation" in {
+    import PackedVector._
+    val a = List(Foo(1,1f,"x"))
+    val b = a.to[PackedVector]
+    b.size shouldBe 1
+  }
+
 }
