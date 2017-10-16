@@ -36,4 +36,12 @@ class PackedMapTest extends FlatSpec with Matchers {
     a.size shouldBe 1
     b.size shouldBe 2
   }
+
+  it should "remove elements" ignore {
+    val a = PackedMap("x" -> Foo(1, 1.0f, "x"), "y" -> Foo(2, 1.0f, "y"))
+    val b = a - "x"
+    b.contains("x") shouldBe false
+    a.contains("x") shouldBe true
+    b.size shouldBe 1
+  }
 }

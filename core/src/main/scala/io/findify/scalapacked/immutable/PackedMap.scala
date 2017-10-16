@@ -16,7 +16,9 @@ class PackedMap[A, +B](val map: PackedMapImpl[A,B])(implicit kc: Codec[A], vc: C
   override def size: Int = map.count
   override def empty: PackedMap[A, B] = PackedMap.empty
   override def iterator: Iterator[(A, B)] = new StructMapIterator(this)
-  override def -(key: A): PackedMap[A, B] = ???
+  override def -(key: A): PackedMap[A, B] = {
+    ???
+  }
   override def get(key: A): Option[B] = {
     map.get(key)
   }
