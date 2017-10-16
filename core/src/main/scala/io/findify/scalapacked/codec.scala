@@ -1,5 +1,4 @@
 package io.findify.scalapacked
-import io.findify.scalapacked.PackedSeq.PackedSeqCanBuildFrom
 import io.findify.scalapacked.pool.MemoryPool
 import io.findify.scalapacked.types._
 import shapeless.{:+:, ::, CNil, Coproduct, HList, HNil, LabelledTypeClass, LabelledTypeClassCompanion, Lazy}

@@ -1,5 +1,6 @@
 package io.findify.scalapacked
 
+import io.findify.scalapacked.immutable.PackedMapImpl
 import org.scalatest.{FlatSpec, Matchers}
 
 class PackedMapImplTest extends FlatSpec with Matchers {

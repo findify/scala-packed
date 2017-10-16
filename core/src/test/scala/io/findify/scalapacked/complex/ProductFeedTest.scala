@@ -1,7 +1,7 @@
 package io.findify.scalapacked.complex
 
-import io.findify.scalapacked.PackedMap
 import io.findify.scalapacked.complex.ProductFeedTest.Prod
+import io.findify.scalapacked.immutable.PackedMap
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.util.Random

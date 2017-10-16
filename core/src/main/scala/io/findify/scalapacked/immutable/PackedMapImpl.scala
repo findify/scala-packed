@@ -1,4 +1,4 @@
-package io.findify.scalapacked
+package io.findify.scalapacked.immutable
 
 import java.util
 

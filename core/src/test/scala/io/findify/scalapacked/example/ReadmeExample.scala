@@ -1,8 +1,8 @@
 package io.findify.scalapacked.example
 
+import io.findify.scalapacked.immutable.{PackedMap, PackedVector}
 import io.findify.scalapacked.pool.MemoryPool
 import io.findify.scalapacked.types.Codec
-import io.findify.scalapacked.{PackedMap, PackedSeq}
 import org.scalatest.{FlatSpec, Matchers}
 
 class ReadmeExample extends FlatSpec with Matchers {
@@ -16,7 +16,7 @@ class ReadmeExample extends FlatSpec with Matchers {
     import io.findify.scalapacked.codec.generic._
 
     // a sequence of 1k objects
-    val list = PackedSeq((0 to 1000).map(i => HelloPacked(i, i.toLong, i.toString)): _*)
+    val list = PackedVector((0 to 1000).map(i => HelloPacked(i, i.toLong, i.toString)): _*)
 
     // use it as a typical scala collection
     list.count(_.i % 10 == 0) shouldBe 101

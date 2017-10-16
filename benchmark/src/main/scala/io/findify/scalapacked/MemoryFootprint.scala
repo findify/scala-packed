@@ -1,6 +1,7 @@
 package io.findify.scalapacked
 
-import io.findify.scalapacked.PackedSeq.PackedSeqCanBuildFrom
+import io.findify.scalapacked.PackedVector.PackedSeqCanBuildFrom
+import io.findify.scalapacked.immutable.PackedVector
 import io.findify.scalapacked.pool.MemoryPool
 import org.github.jamm.MemoryMeter
 
@@ -17,11 +18,11 @@ object MemoryFootprint {
     import codec._
 
     val listInts = (0 to count).toList
-    val listPackedInts: PackedSeq[Int] = PackedSeq(listInts: _*).compact
+    val listPackedInts: PackedVector[Int] = PackedVector(listInts: _*).compact
     measure("list of ints", listInts, listPackedInts)
 
     val listStrings = (0 to count).map(_.toString).toList
-    val listPackedStrings = PackedSeq(listStrings: _*).compact
+    val listPackedStrings = PackedVector(listStrings: _*).compact
     measure("list of strings", listStrings, listPackedStrings)
 
     val mapStrings = (0 to count).map(i => i.toString -> (i + 1).toString).toMap

@@ -1,7 +1,7 @@
 package io.findify.scalapacked
 
-import io.findify.scalapacked.PackedSeq.PackedSeqCanBuildFrom
 import io.findify.scalapacked.example.{Foo, FooCodec}
+import io.findify.scalapacked.immutable.PackedMap
 import org.scalatest.{FlatSpec, Matchers}
 
 class PackedMapTest extends FlatSpec with Matchers {

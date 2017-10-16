@@ -1,12 +1,12 @@
-package io.findify.scalapacked
+package io.findify.scalapacked.immutable
 
 import java.util
 
-import io.findify.scalapacked.PackedMap.StructMapIterator
-import io.findify.scalapacked.pool.{HeapPool, MemoryPool}
+import io.findify.scalapacked.immutable
+import io.findify.scalapacked.immutable.PackedMap.StructMapIterator
 import io.findify.scalapacked.types.Codec
 
-import scala.collection.generic.{CanBuildFrom, ImmutableMapFactory, MutableMapFactory}
+import scala.collection.generic.{CanBuildFrom, ImmutableMapFactory}
 import scala.collection.mutable
 
 

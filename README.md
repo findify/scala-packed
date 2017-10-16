@@ -36,7 +36,7 @@ General idea:
 ```scala
     import io.findify.scalapacked.pool.MemoryPool
     import io.findify.scalapacked.types.Codec
-    import io.findify.scalapacked.PackedMap
+    import io.findify.scalapacked.immutable.PackedMap
     
     // custom type codec
     implicit val byteCodec = new Codec[Byte] {

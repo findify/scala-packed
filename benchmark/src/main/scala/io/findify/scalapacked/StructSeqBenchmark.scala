@@ -22,7 +22,7 @@ class StructSeqBenchmark {
     import codec._
     listType match {
       case "List" => list = items.toList
-      case "PackedSeq" => list = PackedSeq(items.toList: _*)
+      case "PackedSeq" => list = PackedVector(items.toList: _*)
     }
   }
 
