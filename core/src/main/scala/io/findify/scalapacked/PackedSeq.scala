@@ -67,4 +67,10 @@ object PackedSeq {
     builder.result()
   }
 
+  def apply[A](items: Seq[A])(implicit codec: Codec[A]): PackedSeq[A] = {
+    val builder = new PackedSeqBuilder[A]()
+    builder ++= items
+    builder.result()
+  }
+
 }
