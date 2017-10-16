@@ -29,4 +29,11 @@ class PackedMapTest extends FlatSpec with Matchers {
     val b = a.toPackedMap
     b.contains("x") shouldBe true
   }
+
+  it should "not mutate original map on append" in {
+    val a = PackedMap("x" -> Foo(1, 1.0f, "x"))
+    val b = a + ("y" -> Foo(2, 1.0f, "y"))
+    a.size shouldBe 1
+    b.size shouldBe 2
+  }
 }

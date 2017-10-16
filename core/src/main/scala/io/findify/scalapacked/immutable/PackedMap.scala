@@ -3,7 +3,7 @@ package io.findify.scalapacked.immutable
 import java.util
 
 import io.findify.scalapacked.immutable
-import io.findify.scalapacked.immutable.PackedMap.StructMapIterator
+import io.findify.scalapacked.immutable.PackedMap.{PackedMapBuilder, StructMapIterator}
 import io.findify.scalapacked.types.Codec
 
 import scala.collection.generic.{CanBuildFrom, ImmutableMapFactory}
@@ -20,8 +20,20 @@ class PackedMap[A, +B](val map: PackedMapImpl[A,B])(implicit kc: Codec[A], vc: C
   override def get(key: A): Option[B] = {
     map.get(key)
   }
-  override def +[V1 >: B](kv: (A, V1)): PackedMap.this.type = {
-    ???
+  override def +[V1 >: B](kv: (A, V1)): PackedMap[A, V1] = {
+    val key = kv._1
+    val value = kv._2.asInstanceOf[B] // woah, ugly!
+    val bldr = new PackedMapBuilder[A, B]()
+    var updated = false
+    iterator.foreach(element => {
+      if (element._1 == key) {
+        bldr += (key -> value)
+        updated = true
+      } else
+        bldr += element
+    })
+    if (!updated) bldr += (key -> value)
+    bldr.result()
   }
 
   def compact: PackedMap[A, B] = {
