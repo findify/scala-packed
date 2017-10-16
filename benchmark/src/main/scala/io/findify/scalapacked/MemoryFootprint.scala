@@ -1,6 +1,6 @@
 package io.findify.scalapacked
 
-import io.findify.scalapacked.immutable.{PackedMap, PackedVector}
+import io.findify.scalapacked.immutable.{PackedMap, PackedList}
 import org.github.jamm.MemoryMeter
 
 import scala.util.Random
@@ -16,11 +16,11 @@ object MemoryFootprint {
     import codec._
 
     val listInts = (0 to count).toList
-    val listPackedInts: PackedVector[Int] = PackedVector(listInts: _*).compact
+    val listPackedInts: PackedList[Int] = PackedList(listInts: _*).compact
     measure("list of ints", listInts, listPackedInts)
 
     val listStrings = (0 to count).map(_.toString).toList
-    val listPackedStrings = PackedVector(listStrings: _*).compact
+    val listPackedStrings = PackedList(listStrings: _*).compact
     measure("list of strings", listStrings, listPackedStrings)
 
     val mapStrings = (0 to count).map(i => i.toString -> (i + 1).toString).toMap

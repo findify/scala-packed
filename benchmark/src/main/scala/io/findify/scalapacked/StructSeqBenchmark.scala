@@ -2,7 +2,7 @@ package io.findify.scalapacked
 
 import java.util.concurrent.TimeUnit
 
-import io.findify.scalapacked.immutable.PackedVector
+import io.findify.scalapacked.immutable.PackedList
 import org.openjdk.jmh.annotations._
 
 /**
@@ -23,7 +23,7 @@ class StructSeqBenchmark {
     import codec._
     listType match {
       case "List" => list = items.toList
-      case "PackedSeq" => list = PackedVector(items.toList: _*)
+      case "PackedSeq" => list = PackedList(items.toList: _*)
     }
   }
 

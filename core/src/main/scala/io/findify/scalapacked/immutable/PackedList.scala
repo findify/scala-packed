@@ -1,15 +1,15 @@
 package io.findify.scalapacked.immutable
 
 import io.findify.scalapacked.immutable
-import io.findify.scalapacked.immutable.PackedVector.PackedVectorBuilder
+import io.findify.scalapacked.immutable.PackedList.PackedListBuilder
 import io.findify.scalapacked.pool.{HeapPool, MemoryPool}
 import io.findify.scalapacked.types.Codec
 
 import scala.collection.{TraversableLike, mutable}
 import scala.collection.generic.CanBuildFrom
 
-class PackedVector[A](pool: MemoryPool = new HeapPool(20))(implicit codec: Codec[A]) extends Traversable[A] with TraversableLike[A, PackedVector[A]] {
-  override protected[this] def newBuilder = new PackedVectorBuilder[A]()
+class PackedList[A](val pool: MemoryPool = new HeapPool(20))(implicit codec: Codec[A]) extends Traversable[A] with TraversableLike[A, PackedList[A]] {
+  override protected[this] def newBuilder = new PackedListBuilder[A]()
 
   def foreach[U](f: A => U): Unit = {
     val poolSize = pool.size
@@ -20,6 +20,13 @@ class PackedVector[A](pool: MemoryPool = new HeapPool(20))(implicit codec: Codec
       f(item)
       offset += size
     }
+  }
+
+  def ++(other: PackedList[A]): PackedList[A] = {
+    val unionPool = new HeapPool()
+    unionPool.copy(pool)
+    unionPool.copy(other.pool)
+    new PackedList(unionPool)
   }
 
   override def size: Int = {
@@ -34,13 +41,13 @@ class PackedVector[A](pool: MemoryPool = new HeapPool(20))(implicit codec: Codec
     count
   }
 
-  def compact: PackedVector[A] = {
-    new PackedVector(pool.compact())
+  def compact: PackedList[A] = {
+    new PackedList(pool.compact())
   }
 }
 
-object PackedVector {
-  class PackedVectorBuilder[A](implicit codec: Codec[A]) extends mutable.Builder[A, PackedVector[A]] {
+object PackedList {
+  class PackedListBuilder[A](implicit codec: Codec[A]) extends mutable.Builder[A, PackedList[A]] {
     private var pool = new HeapPool(20)
     private var size = 0
     override def +=(elem: A) = {
@@ -52,20 +59,20 @@ object PackedVector {
       pool = new HeapPool(20)
       size = 0
     }
-    override def result(): PackedVector[A] = {
-      new PackedVector[A](pool)
+    override def result(): PackedList[A] = {
+      new PackedList[A](pool)
     }
   }
 
-  class PackedSeqCanBuildFrom[A](implicit codec: Codec[A]) extends CanBuildFrom[Any, A, PackedVector[A]] {
-    def apply = new PackedVectorBuilder[A]()
-    def apply(from: Any) = new PackedVectorBuilder[A]()
+  class PackedSeqCanBuildFrom[A](implicit codec: Codec[A]) extends CanBuildFrom[Any, A, PackedList[A]] {
+    def apply = new PackedListBuilder[A]()
+    def apply(from: Any) = new PackedListBuilder[A]()
   }
 
   implicit def canBuildFrom[A](implicit codec: Codec[A]) = new PackedSeqCanBuildFrom[A]()
 
-  def apply[A](items: A*)(implicit codec: Codec[A]): PackedVector[A] = {
-    val builder = new PackedVectorBuilder[A]()
+  def apply[A](items: A*)(implicit codec: Codec[A]): PackedList[A] = {
+    val builder = new PackedListBuilder[A]()
     builder ++= items
     builder.result()
   }

@@ -1,8 +1,8 @@
 package io.findify.scalapacked
 
 import io.findify.scalapacked.example.{Foo, FooCodec}
-import io.findify.scalapacked.immutable.PackedVector
-import io.findify.scalapacked.immutable.PackedVector.PackedSeqCanBuildFrom
+import io.findify.scalapacked.immutable.PackedList
+import io.findify.scalapacked.immutable.PackedList.PackedSeqCanBuildFrom
 import org.scalatest.{FlatSpec, Matchers}
 
 
@@ -11,9 +11,9 @@ import org.scalatest.{FlatSpec, Matchers}
   */
 
 
-class PackedVectorTest extends FlatSpec with Matchers {
+class PackedListTest extends FlatSpec with Matchers {
   implicit val encoder = new FooCodec()
-  val buf = Range(0, 10).map(r => Foo(r, r.toFloat, r.toString)).to[PackedVector](new PackedSeqCanBuildFrom[Foo]())
+  val buf = Range(0, 10).map(r => Foo(r, r.toFloat, r.toString)).to[PackedList](new PackedSeqCanBuildFrom[Foo]())
 
   "case class with int" should "convert from normal seq" in {
     buf.size shouldBe 10
@@ -24,30 +24,30 @@ class PackedVectorTest extends FlatSpec with Matchers {
   }
 
   it should "construct seq from element vararg" in {
-    val buf2 = PackedVector(Foo(111, 111.0f, "xxx"))
+    val buf2 = PackedList(Foo(111, 111.0f, "xxx"))
     buf2.head.i1 shouldBe 111
-    val buf2a = PackedVector(Foo(111, 111.0f, "xxx"), Foo(222, 222.0f, "yyy"))
+    val buf2a = PackedList(Foo(111, 111.0f, "xxx"), Foo(222, 222.0f, "yyy"))
     buf2a.size shouldBe 2
   }
 
   it should "append elements to list" in {
-    val buf2 = PackedVector(Foo(111, 111.0f, "xxx"))
+    val buf2 = PackedList(Foo(111, 111.0f, "xxx"))
     val buf3 = buf ++ buf2
     buf3.size shouldBe 11
   }
 
   it should "not mutate the original list" in {
-    val a = PackedVector(Foo(1,1f,"x"))
-    val b = PackedVector(Foo(1,1f,"x"))
+    val a = PackedList(Foo(1,1f,"x"))
+    val b = PackedList(Foo(1,1f,"x"))
     val c = a ++ b
     c.size shouldBe 2
     a.size shouldBe 1
   }
 
   it should "make cbf-based collection transformation" in {
-    import PackedVector._
+    import PackedList._
     val a = List(Foo(1,1f,"x"))
-    val b = a.to[PackedVector]
+    val b = a.to[PackedList]
     b.size shouldBe 1
   }
 
