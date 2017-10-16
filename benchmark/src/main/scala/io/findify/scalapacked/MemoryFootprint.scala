@@ -1,43 +1,48 @@
 package io.findify.scalapacked
 
-import io.findify.scalapacked.StructSeq.StructCanBuildFrom
+import io.findify.scalapacked.PackedSeq.PackedSeqCanBuildFrom
 import io.findify.scalapacked.pool.MemoryPool
-import io.findify.scalapacked.types.{IntPacked, StringPacked}
 import org.github.jamm.MemoryMeter
+
+import scala.util.Random
 
 /**
   * Created by shutty on 11/22/16.
   */
 
-case class PackedInt(a:Int, b: String) extends Struct
-case class WrappedInt(a:Int, b: String)
-
 object MemoryFootprint {
+  val meter = new MemoryMeter()
+  val count = 1024*10
   def main(args: Array[String]): Unit = {
-    implicit val encoder = new Encoder[PackedInt] {
-      override def write(value: PackedInt, buffer: MemoryPool): Int = {
-        IntPacked.write(4 + IntPacked.size(value.a) + StringPacked.size(value.b), buffer)
-        IntPacked.write(value.a, buffer)
-        StringPacked.write(value.b, buffer)
-      }
-    }
+    import codec._
 
-    implicit val decoder = new Decoder[PackedInt] {
-      override def read(buffer: MemoryPool, offset: Int): PackedInt = {
-        val a = IntPacked.read(buffer, offset + 4)
-        val s = StringPacked.read(buffer, offset + 8)
-        PackedInt(a, s)
-      }
-      override def size(buffer: MemoryPool, offset: Int): Int = IntPacked.read(buffer, offset)
-    }
-    implicit def cbf = new StructCanBuildFrom[PackedInt]()
-    val arrayInts = (0 to 100000).toArray
-    val listInts = arrayInts.map(i => WrappedInt(i, i.toString)).toList
-    val listPackedInts: StructSeq[PackedInt] = arrayInts.toList.map(i => PackedInt(i, i.toString))
+    val listInts = (0 to count).toList
+    val listPackedInts: PackedSeq[Int] = PackedSeq(listInts: _*).compact
+    measure("list of ints", listInts, listPackedInts)
 
+    val listStrings = (0 to count).map(_.toString).toList
+    val listPackedStrings = PackedSeq(listStrings: _*).compact
+    measure("list of strings", listStrings, listPackedStrings)
 
-    val meter = new MemoryMeter()
-    println(s"list of ints wrapped in case class = ${meter.measureDeep(listInts)}")
-    println(s"packed seq = ${meter.measureDeep(listPackedInts)}")
+    val mapStrings = (0 to count).map(i => i.toString -> (i + 1).toString).toMap
+    val mapPackedStrings = PackedMap(mapStrings.toList: _*).compact
+    measure("map of strings", mapStrings, mapPackedStrings)
+
+    import codec.generic._
+    case class NestedFoo(x: String)
+    case class ComplexFoo(i: Int, s: String, n: NestedFoo)
+    val mapCase = (0 to count).map(i => Random.nextInt() -> ComplexFoo(i, i.toString, NestedFoo((i + 1).toString))).toMap
+    val mapPackedCase = PackedMap(mapCase.toList: _*).compact
+    val cdc = deriveCodec[ComplexFoo]
+    println(s"obj size = ${cdc.size(mapPackedCase.head._2)}")
+    measure("map of case classes", mapCase, mapPackedCase)
+  }
+
+  def measure(name: String, baseline: AnyRef, packed: AnyRef) = {
+    val baselineBytes = meter.measureDeep(baseline)
+    val packedBytes = meter.measureDeep(packed)
+    println(s"$name: baseline = ${baselineBytes / count} byte/item")
+    println(s"$name: packed = ${packedBytes / count} byte/item (${100.0 * (packedBytes / baselineBytes.toDouble)}% of original)")
+
   }
 }

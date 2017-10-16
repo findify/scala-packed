@@ -63,4 +63,12 @@ class HeapPoolTest extends FlatSpec with Matchers {
     merged.readInt(0) shouldBe 1
     merged.readInt(4) shouldBe 2
   }
+
+  it should "compact itself" in {
+    val p1 = new HeapPool()
+    p1.writeInt(1)
+    p1.capacity shouldBe 1024
+    val p2 = p1.compact()
+    p2.capacity shouldBe 4
+  }
 }

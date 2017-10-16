@@ -5,50 +5,110 @@ A \[early prototype of\] scala library for making memory-optimized data structur
 General idea:
 
 * pack all members of case-class like objects to a single ByteArray buffer
-* use a single shared buffer for sequences
-* zero allocations while doing seq.map() as we only update buffer offset in iterator object
-* sequences are immutable, but Trie-like, with O(1) append/prepend
+* use a single shared buffer for all elements in a sequence
+* supports String, Float, Double, Int, Long types
+* supports Option[T], Map[K,V], Seq[T]
+* can do shapeless-based codec auto-derivation for custom case classes  
+* can be extended for custom types
 
-### hello world example
 
-    @Packed class HelloPacked(i: Int, l: Long)
+### Hello world example
+
+```scala
+    import io.findify.scalapacked.PackedSeq
+
+    // A simple case class to pack
+    case class HelloPacked(i: Int, l: Long, s: String)
     
-    // apply method
-    val hello = HelloPacked(1, 2L)
+    // codecs for default scala types
+    import io.findify.scalapacked.codec._
+    // shapeless-based codec auto-deriver for case classes
+    import io.findify.scalapacked.codec.generic._
     
-    // getters
-    val i = hello.i
-    val l = hello.l
+    // a sequence of 1k objects
+    val list = PackedSeq((0 to 1000).map(i => HelloPacked(i, i.toLong, i.toString)): _*)
     
-    // list
-    val seq = PackedSeq[HelloPacked]((0 to 1000).map(a => HelloPacked(a, a)))
+    // use it as a typical scala collection
+    list.filter(_.i % 10 == 0)
+```
+### More complex example
+
+```scala
+    import io.findify.scalapacked.pool.MemoryPool
+    import io.findify.scalapacked.types.Codec
+    import io.findify.scalapacked.PackedMap
     
-    // iterating
-    var sum = 0
-    seq.foreach( item => sum += item.i )
+    // custom type codec
+    implicit val byteCodec = new Codec[Byte] {
+      // read byte from buffer
+      override def read(buffer: MemoryPool, offset: Int): Byte = buffer.readByte(offset)
+      // packed object size in buffer
+      override def size(buffer: MemoryPool, offset: Int): Int = 1
+      // object size
+      override def size(item: Byte): Int = 1
+      // write object to buffer and return it's offset
+      override def write(value: Byte, buffer: MemoryPool): Int = buffer.writeByte(value)
+    }
     
-    // mapping
-    val twice = seq.map(a => HelloPacked(a.i * 2, a.l * 2))
+    // case class with cutsom type
+    case class NestedFoo(b: Byte)
+    case class RootFoo(n: NestedFoo)
+
+    // codecs for default scala types
+    import io.findify.scalapacked.codec._
+    // shapeless-based codec auto-deriver for case classes
+    import io.findify.scalapacked.codec.generic._
+
+    // build a packed map
+    val map = PackedMap( (0 to 100).map(i => s"key$i" -> RootFoo(NestedFoo(i.toByte))): _*)
+
+    // use it as a regular one
+    map.get("key75")    
+```   
     
 ### Performance
 
-RAM usage is 5x-10x lower compared to generic collections of case classes.
+RAM usage is 5x-10x lower compared to generic collections of case classes:
 
-CPU usage depends on workload, but in general is the same as scala native collections (which are quite slow BTW).
+    List[Int]         = 40 byte/item
+    PackedList[Int]   = 4  byte/item (10.02% of original)
+    
+    List[String]      = 72 byte/item
+    PackedSeq[String] = 7  byte/item (10.97% of original)
+    
+    Map[String,String]              = 167 byte/item
+    PackedMap[String,String]        = 29 byte/item (17.38% of original)
 
-### TODO
+    Map[String, ComplexClass]       = 222 byte/item
+    PackedMap[String, ComplexClass] = 45 byte/item (20.24% of original)
 
-Features not yet implemented:
+CPU usage depends on workload, but in general it is 3x-5x slower than scala native collections:
 
-* support for Float, Double, Byte types
-* support for arbitrary types (like joda-time)
-* support for nested packed classes
+For Map vs PackedMap: 
+
+    Benchmark                             (mapType)  Mode  Cnt       Score      Error  Units
+    PackedMapBenchmark.build1000                Map  avgt   10  117845.527 ± 1101.192  ns/op
+    PackedMapBenchmark.build1000          PackedMap  avgt   10  213333.266 ± 3285.303  ns/op
+    PackedMapBenchmark.lookupExisting           Map  avgt   10      32.682 ±    0.509  ns/op
+    PackedMapBenchmark.lookupExisting     PackedMap  avgt   10      80.360 ±    0.487  ns/op
+    PackedMapBenchmark.lookupNonExisting        Map  avgt   10      25.683 ±    0.309  ns/op
+    PackedMapBenchmark.lookupNonExisting  PackedMap  avgt   10      15.055 ±    0.383  ns/op
+
+For List vs PackedSeq:
+
+    Benchmark                   (listType)  Mode  Cnt     Score     Error  Units
+    PackedSeqBenchmark.filter         List  avgt   10  4014.360 ±  49.048  ns/op
+    PackedSeqBenchmark.filter    PackedSeq  avgt   10  8465.392 ± 117.966  ns/op
+    PackedSeqBenchmark.foreach        List  avgt   10  2250.216 ±  10.079  ns/op
+    PackedSeqBenchmark.foreach   PackedSeq  avgt   10  5346.679 ±  35.374  ns/op
+    PackedSeqBenchmark.head           List  avgt   10     4.213 ±   0.060  ns/op
+    PackedSeqBenchmark.head      PackedSeq  avgt   10   211.507 ±   1.748  ns/op
 
 ## Licence
 
 The MIT License (MIT)
 
-Copyright (c) 2016 Findify AB
+Copyright (c) 2017 Findify AB
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
