@@ -1,9 +1,9 @@
-scalaVersion in ThisBuild := "2.12.3"
+scalaVersion in ThisBuild := "2.12.4"
 
 lazy val core = (project in file("core")).settings(
   name := "scalapacked",
-  version := "0.1.2",
   organization := "io.findify",
+  version := "0.2.0",
   licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT")),
   publishMavenStyle := true,
   sonatypeProfileName := "io.findify",
@@ -31,7 +31,7 @@ lazy val core = (project in file("core")).settings(
     "org.scalatest" %% "scalatest" % "3.0.4",
     "com.chuusai" %% "shapeless" % "2.3.2",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
-    "ch.qos.logback" % "logback-classic" % "1.2.3"
+    "ch.qos.logback" % "logback-classic" % "1.2.3" % "test"
   )
 )
 
