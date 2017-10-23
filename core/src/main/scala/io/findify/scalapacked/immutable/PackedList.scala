@@ -8,7 +8,7 @@ import io.findify.scalapacked.types.Codec
 import scala.collection.{TraversableLike, mutable}
 import scala.collection.generic.CanBuildFrom
 
-class PackedList[A](val pool: MemoryPool = new HeapPool(20))(implicit codec: Codec[A]) extends Traversable[A] with TraversableLike[A, PackedList[A]] {
+class PackedList[A](val pool: MemoryPool = new HeapPool())(implicit codec: Codec[A]) extends Traversable[A] with TraversableLike[A, PackedList[A]] {
   override protected[this] def newBuilder = new PackedListBuilder[A]()
 
   def foreach[U](f: A => U): Unit = {
@@ -48,7 +48,7 @@ class PackedList[A](val pool: MemoryPool = new HeapPool(20))(implicit codec: Cod
 
 object PackedList {
   class PackedListBuilder[A](implicit codec: Codec[A]) extends mutable.Builder[A, PackedList[A]] {
-    private var pool = new HeapPool(20)
+    private var pool = new HeapPool()
     private var size = 0
     override def +=(elem: A) = {
       codec.write(elem, pool)

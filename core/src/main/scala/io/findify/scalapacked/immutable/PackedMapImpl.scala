@@ -86,7 +86,7 @@ object PackedMapImpl {
   def apply[A, B](bucketCount: Int = 16, poolSize: Int = 32)(implicit kc: Codec[A], vc: Codec[B]): PackedMapImpl[A, B] = {
     new PackedMapImpl[A, B](
       bucketCount = bucketCount,
-      pool = new HeapPool(poolSize),
+      pool = new HeapPool(),
       buckets = new Array[Int](bucketCount),
       usedBuckets = new util.BitSet(bucketCount),
       count = 0
