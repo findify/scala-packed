@@ -15,15 +15,16 @@ import org.openjdk.jmh.annotations._
 class StructSeqBenchmark {
   var list: Traversable[Int] = _
   val items = (0 to 1000).toArray
-  @Param(Array("List", "PackedSeq"))
+  @Param(Array("Vector", "List", "PackedList"))
   var listType: String = _
 
   @Setup
   def setup = {
     import codec._
     listType match {
+      case "Vector" => list = items.toVector
       case "List" => list = items.toList
-      case "PackedSeq" => list = PackedList(items.toList: _*)
+      case "PackedList" => list = PackedList(items.toList: _*)
     }
   }
 
