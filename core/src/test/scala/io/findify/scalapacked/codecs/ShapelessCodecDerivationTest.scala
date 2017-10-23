@@ -19,6 +19,15 @@ class ShapelessCodecDerivationTest extends FlatSpec with Matchers {
     size(Wrapped("foo", Nested(1))) shouldBe 11
   }
 
+  it should "derive sealed trait hierarchies" in {
+    sealed trait Foo
+    case class Bar(a: String) extends Foo
+    case class Baz(b: Int) extends Foo
+    case class Root(r: Foo)
+    implicit val fooCodec = deriveCodec[Foo]
+    size(Root(Bar("xxx"))) shouldBe 11
+  }
+
   it should "derive classes with custom types" in {
     implicit val dtCodec = new Codec[SuperDate] {
       override def read(buffer: MemoryPool, offset: Int): SuperDate = SuperDate(
